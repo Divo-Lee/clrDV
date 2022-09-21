@@ -1,0 +1,22 @@
+Package: clrDV
+Title: clrDV: A differential variability test for RNA-Seq data based on the skew-normal distribution
+Version: 1.0.0
+Date: 2022-09-15
+Authors@R: c(
+    person("Hongxiang", "Li", email = "chelsea.divo@hotmail.com", role = c("aut", "cre")),
+    person("Tsung Fei", "Khang", email = "tfkhang@um.edu.my", role = "aut"))
+Description: clrDV is a statistical method for detecting genes/transcripts in RNA-Seq data that show differential variability between two populations. clrDV is based on a compositional data analysis framework. The skew-normal distribution is used for modeling gene-wise null distribution of centered log-ratio transformed RNA-Seq data.
+Imports: sn, vioplot, stats, utils, grDevices, graphics
+License: GPL-2
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+LazyData: true
