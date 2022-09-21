@@ -9,7 +9,7 @@ clrDV: A statistical method for detecting genes/transcripts in RNA-Seq data that
        distribution of centered log-ratio transformed RNA-Seq data.
 
 Installation:
-  devtools::intall_github("Divo-Lee/clrDV)
+  devtools::intall_github("Divo-Lee/clrDV")
   
 Dependencies:
   clrDV R package depends on following R packages: sn, vioplot, stats, utils, grDevices, graphics.
