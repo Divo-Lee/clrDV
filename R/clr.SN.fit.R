@@ -1,4 +1,4 @@
-#' Fitting the skew-normal distribution to CLR-transformed RNA-Seq data
+#' Fit the skew-normal distribution to CLR-transformed RNA-Seq data
 #'
 #' @description Estimate the mean, standard deviation, and skewness parameters of
 #'              the skew-normal distribution using centered log-ratio (CLR)
@@ -9,17 +9,17 @@
 #'
 #' @return
 #' \item{mu}{The maximum likelihood estimate of the mean parameter.}
-#' \item{se.mu}{The standard error of the maximum likelihood estimate of mu.}
-#' \item{z.mu}{The Wald statistic for mu.}
-#' \item{p.mu}{The p-value of the Wald statistic for mu.}
+#' \item{se.mu}{The standard error of the maximum likelihood estimate of \code{mu}.}
+#' \item{z.mu}{The Wald statistic for \code{mu}.}
+#' \item{p.mu}{The p-value of the Wald statistic for \code{mu}.}
 #' \item{sigma}{The maximum likelihood estimate of the standard deviation parameter.}
-#' \item{se.sigma}{The standard error of the maximum likelihood estimate of sigma.}
-#' \item{z.sigma}{The Wald statistic for sigma.}
-#' \item{p.sigma}{The p-value of the Wald statistic for sigma.}
+#' \item{se.sigma}{The standard error of the maximum likelihood estimate of \code{sigma}.}
+#' \item{z.sigma}{The Wald statistic for \code{sigma}.}
+#' \item{p.sigma}{The p-value of the Wald statistic for \code{sigma}.}
 #' \item{gamma}{The maximum likelihood estimate of the skewness parameter.}
-#' \item{se.gamma}{The standard error of the maximum likelihood estimate of gamma.}
-#' \item{z.gamma}{The Wald statistic for gamma.}
-#' \item{p.gamma}{The p-value of the Wald statistic for gamma.}
+#' \item{se.gamma}{The standard error of the maximum likelihood estimate of \code{gamma}.}
+#' \item{z.gamma}{The Wald statistic for \code{gamma}.}
+#' \item{p.gamma}{The p-value of the Wald statistic for \code{gamma}.}
 #'
 #'
 #' @export

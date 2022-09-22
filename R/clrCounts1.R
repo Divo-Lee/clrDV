@@ -1,15 +1,15 @@
-#' Simulated CLR-transformed counts table
+#' Simulated CLR-transformed count table
 #'
-#' A simulated clr-transformed counts table with genes on rows and samples on columns for one condition.
+#' A simulated CLR-transformed count table with genes on the rows and samples on the columns for one condition.
 #'
 #'
 #'
-#' @format A data frame contains CLR-transformed counts, with 500 genes and 500 samples.
-#' \describe{
-#'  \item{clrCounts1}{CLR-transformed counts table, 500*500.}
-#' }
+#' @format A data frame containing CLR-transformed counts, with 500 genes and 500 samples.
+#'
 #'
 #' @name clrCounts1
 #' @docType data
 #'
 "clrCounts1"
+
+

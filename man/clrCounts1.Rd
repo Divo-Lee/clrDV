@@ -3,17 +3,14 @@
 \docType{data}
 \name{clrCounts1}
 \alias{clrCounts1}
-\title{Simulated CLR-transformed counts table}
+\title{Simulated CLR-transformed count table}
 \format{
-A data frame contains CLR-transformed counts, with 500 genes and 500 samples.
-\describe{
-\item{clrCounts1}{CLR-transformed counts table, 500*500.}
-}
+A data frame containing CLR-transformed counts, with 500 genes and 500 samples.
 }
 \usage{
 clrCounts1
 }
 \description{
-A simulated clr-transformed counts table with genes on rows and samples on columns for one condition.
+A simulated CLR-transformed count table with genes on the rows and samples on the columns for one condition.
 }
 \keyword{datasets}

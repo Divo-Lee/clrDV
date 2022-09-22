@@ -1,10 +1,11 @@
 #' Top-ranked genes that show differential variability
 #'
-#' @param clrDV_result An output from clrDV() function.
-#' @param top large/small/abs. Large for SD ratio > 1; small for SD ratio < 1;
-#'            abs. for ranking the DV genes by the absolute value of log2 SD ratio.
+#' @param clrDV_result An output of \code{clrDV}.
+#' @param top Use \code{large} to recover top genes with SD ratio > 1;
+#'            \code{small} to recover genes with SD ratio < 1; \code{abs} to recover genes
+#'            using |log2 SD ratio|.
 #' @param n The threshold rank.
-#' @param full.table Default is FALSE. If full.table = TRUE, the maximum likelihood
+#' @param full.table Default is \code{FALSE}. If \code{full.table} \code{=} \code{TRUE}, the maximum likelihood
 #' estimates of parameters of skew-normal distribution for group 1 and group 2 will be included.
 #'
 #'
@@ -12,13 +13,13 @@
 #'              using the SD ratio (treatment vs. control) of the CLR-transformed count.
 #'
 #' @return
-#' \item{DV}{The difference of the estimated standard deviation between group 2 and group 1 (sigma2 - sigma1).}
-#' \item{se}{The standard error of DV.}
+#' \item{DV}{The difference of the estimated standard deviation between group 2 and group 1 (\code{sigma2} \code{-} \code{sigma1}).}
+#' \item{se}{The standard error of \code{DV}.}
 #' \item{z-value}{The observed Wald statistic value.}
 #' \item{p-value}{The unadjusted p-value of the Wald test.}
 #' \item{adjusted p-value}{The p-value of the Wald test adjusted using the Benjamini-Yekutieli procedure.}
-#' \item{sd_ratio}{The ratio of sigma2 and sigma1 (sigma2/sigma1).}
-#' \item{LFC}{log2 of the sd_ratio.}
+#' \item{sd_ratio}{The ratio of \code{sigma2} and \code{sigma1} (\code{sigma2}\code{/}\code{sigma1}).}
+#' \item{LFC}{log2 of the \code{sd_ratio}.}
 #'
 #' @export
 #'
@@ -31,12 +32,12 @@
 #'    simu_clrDV_test <- clrDV(clrCounts2, group0)
 #'    top.DV.genes(simu_clrDV_test, top = "large", n = 5)
 #'    top.DV.genes(simu_clrDV_test, top = "small", n = 5)
-#'    top.DV.genes(simu_clrDV_test, top = "abs.", n = 5)
-#'    top.DV.genes(simu_clrDV_test, top = "abs.", n = 5, full.table = TRUE)
-#'    dim(top.DV.genes(simu_clrDV_test, top = "abs.", n = Inf))
+#'    top.DV.genes(simu_clrDV_test, top = "abs", n = 5)
+#'    top.DV.genes(simu_clrDV_test, top = "abs", n = 5, full.table = TRUE)
+#'    dim(top.DV.genes(simu_clrDV_test, top = "abs", n = Inf))
 #'
 #'
-top.DV.genes <- function(clrDV_result, top = "abs.", n = 10, full.table = F){
+top.DV.genes <- function(clrDV_result, top = "abs", n = 10, full.table = FALSE){
   # top = "abs.", top large absolute value of log2 SD ratio
   # top = "large", top large SD ratio
   # top = "small", top small SD ratio
@@ -53,11 +54,11 @@ top.DV.genes <- function(clrDV_result, top = "abs.", n = 10, full.table = F){
     top.dv.genes <- head(dv_table[order(dv_table[, 14]), ], n = n)
   } else if (top == "large"){
     top.dv.genes <- head(dv_table[order(dv_table[, 14], decreasing = T), ], n = n)
-  } else if (top == "abs.") {
+  } else if (top == "abs") {
     top.dv.genes <- head(dv_table[order(abs(log2(dv_table[, 14])), decreasing = T), ], n = n)
   }
 
-  if (full.table == T){
+  if (full.table == TRUE){
     return(top.dv.genes)
   } else {
     return(top.dv.genes[, c(1:5,14,15)])

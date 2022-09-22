@@ -3,18 +3,14 @@
 \docType{data}
 \name{clrCounts2}
 \alias{clrCounts2}
-\title{Simulated DV CLR-transformed counts table}
+\title{Simulated DV genes CLR-transformed count table}
 \format{
-A data frames contains CLR-transformed counts, with 1000 genes and 200 samples per group.
-Ten percent of these genes are DV genes (gene1 to gene100).
-\describe{
-\item{clrCounts2}{DV CLR-transformed counts table, 1000*400.}
-}
+A data frame containing CLR-transformed counts, with 1000 genes and 200 samples per group.
 }
 \usage{
 clrCounts2
 }
 \description{
-A simulated DV CLR-transformed counts table with genes on rows and samples on columns for two groups.
+A simulated CLR-transformed count table with genes on the rows and samples on the columns for two groups. Ten percent of the genes are DV genes (gene1 to gene100).
 }
 \keyword{datasets}

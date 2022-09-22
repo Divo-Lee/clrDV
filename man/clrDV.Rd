@@ -7,32 +7,32 @@
 clrDV(data = NULL, group = NULL)
 }
 \arguments{
-\item{data}{A CLR-transformed counts matrix for genes/transcripts on rows and
-samples on columns.}
+\item{data}{A CLR-transformed count matrix with genes/transcripts on the rows and
+samples on the columns.}
 
 \item{group}{A vector specifying the group labels of the data.}
 }
 \value{
-An object of `clrDV' class that contains the results of the DV test and
+An object of `\code{clrDV}' class that contains the results of the DV test and
 associated information:
-\item{DV}{The standard deviation (sigma) difference between
-group 2 and group 1 (sigma.2 - sigma.1).}
-\item{se}{The standard error of DV.}
+\item{DV}{The difference of standard deviation (\code{sigma}) between
+group 2 and group 1 (\code{sigma2} \code{-} \code{sigma1}).}
+\item{se}{The standard error of \code{DV}.}
 \item{z-value}{The observed Wald statistic.}
-\item{p-value}{The unadjusted p-value for differential variability of a gene/transcript.}
+\item{p-value}{The unadjusted p-value of Wald test.}
 \item{adjusted p-value}{The p-value of the Wald test adjusted using the Benjamini-Yekutieli procedure.}
 \item{sigma1}{The maximum likelihood estimate of the standard deviation parameter for group 1.}
-\item{se.sigma1}{The standard error of the maximum likelihood estimate of sigma1.}
-\item{z.sigma1}{The Wald statistic for sigma1.}
-\item{p.sigma1}{The p-value of the Wald statistic for sigma1.}
+\item{se.sigma1}{The standard error of the maximum likelihood estimate of \code{sigma1}.}
+\item{z.sigma1}{The Wald statistic for \code{sigma1}.}
+\item{p.sigma1}{The p-value of the Wald test for \code{sigma1}.}
 \item{sigma2}{The maximum likelihood estimate of the standard deviation parameter for group 2.}
-\item{se.sigma2}{The standard error of the maximum likelihood estimate of gamma2.}
-\item{z.sigma2}{The Wald statistic for sigma2.}
-\item{p.sigma2}{The p-value of the Wald statistic for sigma2.}
+\item{se.sigma2}{The standard error of the maximum likelihood estimate of \code{gamma2}.}
+\item{z.sigma2}{The Wald statistic for \code{sigma2}.}
+\item{p.sigma2}{The p-value of the Wald test for \code{sigma2}.}
 }
 \description{
 Model CLR-transformed RNA-Seq data using the skew-normal distribution,
-and thenconduct a statistical test for finding genes/transcripts with
+and then conduct a statistical test for finding genes/transcripts with
 differential variability using the Wald test.
 }
 \examples{

@@ -1,34 +1,39 @@
-#' Fitting the skew-normal distribution to CLR-transformed RNA-Seq data for 2 groups
+#' Fit the skew-normal model to CLR-transformed RNA-Seq data for 2 groups
 #'
-#' @param data A table of clr-transformed count data, which genes/transcripts on the rows and
-#'  samples on columns for 2 groups.
+#' @description Estimate the mean, standard deviation, and skewness parameters of
+#'              the skew-normal distribution using centered log-ratio (CLR)
+#'              transformed RNA-Seq data for 2 groups.
+#'
+#'
+#' @param data A table of CLR-transformed count data, which genes/transcripts on the rows and
+#'  samples on the columns for 2 groups.
 #' @param group A vector specifying the group labels of the data.
 #'
 #' @return
 #'  \item{mu1}{The maximum likelihood estimate of mean parameter for group 1.}
-#'  \item{se.mu1}{The standard error of the maximum likelihood estimate of mean parameter for group 1.}
-#'  \item{z.mu1}{The Wald statistic for mu1.}
-#'  \item{p.mu1}{The p-value of the Wald test for mu1.}
+#'  \item{se.mu1}{The standard error of the maximum likelihood estimate of \code{mu1}.}
+#'  \item{z.mu1}{The Wald statistic for \code{mu1}.}
+#'  \item{p.mu1}{The p-value of the Wald test for \code{mu1}.}
 #'  \item{sigma1}{The maximum likelihood estimate of the standard deviation parameter for group 1.}
-#'  \item{se.sigma1}{The standard error of the maximum likelihood estimate of the standard deviation parameter for group 1.}
-#'  \item{z.sigma1}{The Wald statistic for sigma1.}
-#'  \item{p.sigma1}{The p-value of the Wald test for sigma1.}
+#'  \item{se.sigma1}{The standard error of the maximum likelihood estimate of \code{sigma1}.}
+#'  \item{z.sigma1}{The Wald statistic for \code{sigma1}.}
+#'  \item{p.sigma1}{The p-value of the Wald test for \code{sigma1}.}
 #'  \item{gamma1}{The maximum likelihood estimate of the skewness parameter for group 1.}
-#'  \item{se.gamma1}{The standard error of the maximum likelihood estimate of the skewness parameter for group 1.}
-#'  \item{z.gamma1}{The Wald statistic for gamma1.}
-#'  \item{p.gamma1}{The p-value of the Wald test for gamma1.}
+#'  \item{se.gamma1}{The standard error of the maximum likelihood estimate of \code{gamma1}.}
+#'  \item{z.gamma1}{The Wald statistic for \code{gamma1}.}
+#'  \item{p.gamma1}{The p-value of the Wald test for \code{gamma1}.}
 #'  \item{mu2}{The maximum likelihood estimate of mean parameter for group 2.}
-#'  \item{se.mu2}{The standard error of the maximum likelihood estimate of mean parameter for group 2.}
-#'  \item{z.mu2}{The Wald statistic for mu2.}
-#'  \item{p.mu2}{The p-value of the Wald test for mu2.}
+#'  \item{se.mu2}{The standard error of the maximum likelihood estimate of \code{mu2}.}
+#'  \item{z.mu2}{The Wald statistic for \code{mu2}.}
+#'  \item{p.mu2}{The p-value of the Wald test for \code{mu2}.}
 #'  \item{sigma2}{The maximum likelihood estimate of the standard deviation parameter for group 2.}
-#'  \item{se.sigma2}{The standard error of the maximum likelihood estimate of the standard deviation parameter for group 2.}
-#'  \item{z.sigma2}{The Wald statistic for sigma2.}
-#'  \item{p.sigma2}{The p-value of the Wald test for sigma2.}
+#'  \item{se.sigma2}{The standard error of the maximum likelihood estimate of \code{sigma2}.}
+#'  \item{z.sigma2}{The Wald statistic for \code{sigma2}.}
+#'  \item{p.sigma2}{The p-value of the Wald test for \code{sigma2}.}
 #'  \item{gamma2}{The maximum likelihood estimate of the skewness parameter for group 2.}
-#'  \item{se.gamma2}{The standard error of the maximum likelihood estimate of the skewness parameter for group 2.}
-#'  \item{z.gamma2}{The Wald statistic for gamma2.}
-#'  \item{p.gamma2}{The p-value of the Wald test for gamma2.}
+#'  \item{se.gamma2}{The standard error of the maximum likelihood estimate of \code{gamma2}.}
+#'  \item{z.gamma2}{The Wald statistic for \code{gamma2}.}
+#'  \item{p.gamma2}{The p-value of the Wald test for \code{gamma2}.}
 #'
 #' @export
 #'

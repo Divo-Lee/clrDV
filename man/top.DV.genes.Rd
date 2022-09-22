@@ -4,27 +4,28 @@
 \alias{top.DV.genes}
 \title{Top-ranked genes that show differential variability}
 \usage{
-top.DV.genes(clrDV_result, top = "abs.", n = 10, full.table = F)
+top.DV.genes(clrDV_result, top = "abs", n = 10, full.table = FALSE)
 }
 \arguments{
-\item{clrDV_result}{An output from clrDV() function.}
+\item{clrDV_result}{An output of \code{clrDV}.}
 
-\item{top}{large/small/abs. Large for SD ratio > 1; small for SD ratio < 1;
-abs. for ranking the DV genes by the absolute value of log2 SD ratio.}
+\item{top}{Use \code{large} to recover top genes with SD ratio > 1;
+\code{small} to recover genes with SD ratio < 1; \code{abs} to recover genes
+using |log2 SD ratio|.}
 
 \item{n}{The threshold rank.}
 
-\item{full.table}{Default is FALSE. If full.table = TRUE, the maximum likelihood
+\item{full.table}{Default is \code{FALSE}. If \code{full.table} \code{=} \code{TRUE}, the maximum likelihood
 estimates of parameters of skew-normal distribution for group 1 and group 2 will be included.}
 }
 \value{
-\item{DV}{The difference of the estimated standard deviation between group 2 and group 1 (sigma2 - sigma1).}
-\item{se}{The standard error of DV.}
+\item{DV}{The difference of the estimated standard deviation between group 2 and group 1 (\code{sigma2} \code{-} \code{sigma1}).}
+\item{se}{The standard error of \code{DV}.}
 \item{z-value}{The observed Wald statistic value.}
 \item{p-value}{The unadjusted p-value of the Wald test.}
 \item{adjusted p-value}{The p-value of the Wald test adjusted using the Benjamini-Yekutieli procedure.}
-\item{sd_ratio}{The ratio of sigma2 and sigma1 (sigma2/sigma1).}
-\item{LFC}{log2 of the sd_ratio.}
+\item{sd_ratio}{The ratio of \code{sigma2} and \code{sigma1} (\code{sigma2}\code{/}\code{sigma1}).}
+\item{LFC}{log2 of the \code{sd_ratio}.}
 }
 \description{
 Extract top-ranked differential variability (DV) genes. These genes are ranked
@@ -37,9 +38,9 @@ using the SD ratio (treatment vs. control) of the CLR-transformed count.
    simu_clrDV_test <- clrDV(clrCounts2, group0)
    top.DV.genes(simu_clrDV_test, top = "large", n = 5)
    top.DV.genes(simu_clrDV_test, top = "small", n = 5)
-   top.DV.genes(simu_clrDV_test, top = "abs.", n = 5)
-   top.DV.genes(simu_clrDV_test, top = "abs.", n = 5, full.table = TRUE)
-   dim(top.DV.genes(simu_clrDV_test, top = "abs.", n = Inf))
+   top.DV.genes(simu_clrDV_test, top = "abs", n = 5)
+   top.DV.genes(simu_clrDV_test, top = "abs", n = 5, full.table = TRUE)
+   dim(top.DV.genes(simu_clrDV_test, top = "abs", n = Inf))
 
 
 }
