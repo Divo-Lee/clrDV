@@ -10,8 +10,8 @@ Hongxiang Li and Tsung Fei Khang
        distribution of centered log-ratio transformed RNA-Seq data.
 
 ### Installation:
-  devtools::intall_github("Divo-Lee/clrDV")
+  devtools::install_github("Divo-Lee/clrDV")
   
 ### Dependencies:
-  clrDV R package depends on following R packages: sn, vioplot, stats, utils, grDevices, graphics.
+  clrDV R package depends on the following packages: sn, vioplot, stats, utils, grDevices, graphics.
   
