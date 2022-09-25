@@ -18,9 +18,9 @@ associated information:
 \item{DV}{The difference of standard deviation (\code{sigma}) between
 group 2 and group 1 (\code{sigma2} \code{-} \code{sigma1}).}
 \item{se}{The standard error of \code{DV}.}
-\item{z-value}{The observed Wald statistic.}
-\item{p-value}{The unadjusted p-value of Wald test.}
-\item{adjusted p-value}{The p-value of the Wald test adjusted using the Benjamini-Yekutieli procedure.}
+\item{z}{The observed Wald statistic.}
+\item{pval}{The unadjusted p-value of Wald test.}
+\item{adj_pval}{The p-value of the Wald test adjusted using the Benjamini-Yekutieli procedure.}
 \item{sigma1}{The maximum likelihood estimate of the standard deviation parameter for group 1.}
 \item{se.sigma1}{The standard error of the maximum likelihood estimate of \code{sigma1}.}
 \item{z.sigma1}{The Wald statistic for \code{sigma1}.}
