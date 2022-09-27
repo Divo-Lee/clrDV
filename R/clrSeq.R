@@ -62,11 +62,12 @@
 
   result <- cbind(group1_seq, group2_seq)
   row.names(result) <- row.names(data)
-  colnames(result) <-  c("mu1", "se.mu1", "z-value", "p-value",
-                         "sigma1", "se.sigma1", "z-value", "p-value",
-                         "gamma1", "se.gamma1", "z-value", "p-value",
-                         "mu2", "se.mu2", "z-value", "p-value",
-                         "sigma2", "se.sigma2", "z-value", "p-value",
-                         "gamma2", "se.gamma2", "z-value", "p-value")
+  colnames(result) <-  c("mu1", "se.mu1", "z.mu1", "p.mu1e",
+                         "sigma1", "se.sigma1", "z.sigma1", "p.sigma1",
+                         "gamma1", "se.gamma1", "z.gamma1", "p.gamma1",
+                         "mu2", "se.mu2", "z.mu2", "p.mu2",
+                         "sigma2", "se.sigma2", "z.sigma2", "p.sigma2",
+                         "gamma2", "se.gamma2", "z.gamma2", "p.gamma2")
+  result <- data.frame(result)
   return(result)
 }
