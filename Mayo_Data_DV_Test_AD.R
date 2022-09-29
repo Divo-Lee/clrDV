@@ -183,7 +183,7 @@ dim(gamlss_NB); dim(dv_table_gamlss); length(dv_genes_gamlss)
 ### DV Test Analysis ###
 ########################
 
-## clrDV AD DV genes list (Supplementary Table 1)
+## clrDV AD DV genes list (Supplementary Table 3)
 clrDv_ratio_up_table <- dv_table_clrDV[dv_table_clrDV[, 6] > 1, ]
 clrDV_ratio_down_table <- dv_table_clrDV[dv_table_clrDV[, 6] < 1, ]
 dim(clrDv_ratio_up_table); dim(clrDV_ratio_down_table)
@@ -228,7 +228,7 @@ clrDV_ratio_down_table <- clrDV_ratio_down_table[, c(1,7,6)]
 
 #########################
 ## volcano plot for clrDV
- # Fig. 4 (a)
+ # Fig. S1 (a)
 par(mar= c(5, 4.6, 4 ,1))
 plot(log(SD_ratio,2), sqrt(neg_log10_q),
      xlim = c(-2, 2), ylim = c(0, 3.5),
@@ -250,7 +250,7 @@ diff_MDSeq1 <- setdiff(setdiff(dv_genes_MDSeq, dv_genes_clrDV), dv_genes_gamlss)
 cgm_genes1 <- intersect(intersect(dv_genes_clrDV,dv_genes_MDSeq), dv_genes_gamlss)
 
 ## Venn Diagram (BH)
- # Fig. 5 (a)
+ # Fig. 4 (a)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS_BH = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -272,7 +272,7 @@ vd <- venn.diagram(list(clrDV=clrDV,MDSeq=MDSeq,"GAMLSS-BH"=GAMLSS_BH),
 grid.draw(vd)
 
 
- # Fig. 5 (c)
+ # Fig. 4 (c)
 vioplot(log2(s.d._test[cgm_genes1, 6]),
         log2(s.d._test[diff_clrDV1, 6]),
         log2(s.d._test[diff_gamlss1, 6]),
@@ -294,7 +294,7 @@ title(adj=0, "(c)")
 
 
 ###############
-## (Supplementary Table 3)
+## (Supplementary Table 5)
 ## union_DV_table_BH (GAMLSS use BH FDR) 
 union_dv_genes_AD_BH <- union(union(dv_genes_clrDV, dv_genes_MDSeq),
                               dv_genes_gamlss)
@@ -345,7 +345,7 @@ dv_genes_gamlss <- row.names(dv_table_gamlss)
 length(setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq))
 
 ## Venn Diagram (BY)
- # Fig. 5 (b)
+ # Fig. 4 (b)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS_BY = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -369,7 +369,7 @@ grid.draw(vd2)
 
 
 ## violin plots
-# Fig. 5 (d)
+# Fig. 4 (d)
 diff_clrDV2 <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq)
 diff_gamlss2 <- setdiff(setdiff(dv_genes_gamlss, dv_genes_clrDV), dv_genes_MDSeq)
 diff_MDSeq2 <- setdiff(setdiff(dv_genes_MDSeq, dv_genes_clrDV), dv_genes_gamlss)
@@ -399,7 +399,7 @@ title(adj=0, "(d)")
 
 ### ### ### ### ###
 ### union_DV_table_BY (GAMLSS use BY FDR) 
-## (Supplementary Table 3)
+## (Supplementary Table 5)
 dv_genes_gamlss_BY <- row.names(dv_table_gamlss)
 union_dv_genes_AD_BY <- union(union(dv_genes_clrDV, dv_genes_MDSeq),
                               dv_genes_gamlss_BY)
@@ -441,7 +441,7 @@ unique_clrDV_dv_table_AD_BY <- unique_clrDV_dv_table_AD_BY[order(unique_clrDV_dv
 
 ########################################
 ## Violin plots for large-magnitude SD ratio DV genes
-## Fig. 7
+## Fig. S3
 top_dv_genes_to_plot <- c("ENSG00000142494", "ENSG00000119147",
                           "ENSG00000124107", "ENSG00000119681",
                           "ENSG00000203618", "ENSG00000141456")

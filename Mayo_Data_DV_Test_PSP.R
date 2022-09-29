@@ -181,7 +181,7 @@ dim(gamlss_NB); length(dv_genes_gamlss)
 ################
 ### Analysis ###
 ################
-## clrDV PSP DV genes list (Supplementary Table 2)
+## clrDV PSP DV genes list (Supplementary Table 4)
 psp_clrDv_ratio_up_table <- dv_table_clrDV[dv_table_clrDV[, 6] > 1, ]
 psp_clrDV_ratio_down_table <- dv_table_clrDV[dv_table_clrDV[, 6] < 1, ]
 dim(psp_clrDv_ratio_up_table); dim(psp_clrDV_ratio_down_table)
@@ -225,7 +225,7 @@ psp_clrDV_ratio_down_table <- psp_clrDV_ratio_down_table[, c(1,7,6)]
 
 
 ## Volcano plot, black and white with dashed line (q=0.05)
- # Fig. 4 (b)
+ # Fig. S1 (b)
 par(mar= c(5, 4.6, 4 ,1))
 plot(log(SD_ratio,2), sqrt(neg_log10_q),
      xlim = c(-2, 2), ylim = c(0, 3.5),
@@ -239,7 +239,7 @@ title(adj=0, "(b)")
 
 ### Comparison One, GAMLSS uses BH FDR
 ## Venn Diagram (BH)
- # Fig. 6 (a)
+ # Fig. S2 (a)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -262,7 +262,7 @@ grid.draw(vd)
 
 
 ## violin plots of the distribution of log2 SD ratio
-# Fig. 6 (c)
+# Fig. S2 (c)
 length(setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq))
 
 diff_clrDV1 <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq)
@@ -292,7 +292,7 @@ title(adj=0, "(c)")
 
 
 ### ### ### ### ### ###
-## Supplementary Table 4
+## Supplementary Table 6
 ### union_DV_table_BH (GAMLSS use BH FDR)
 union_dv_genes_psp_BH <- union(union(dv_genes_clrDV, dv_genes_MDSeq), dv_genes_gamlss)
 length(union_dv_genes_psp_BH)
@@ -338,7 +338,7 @@ dim(dv_table_gamlss)
 dv_genes_gamlss <- row.names(dv_table_gamlss)
 
 ## Venn Diagram
- # Fig. 6 (b)
+ # Fig. S2 (b)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -361,7 +361,7 @@ grid.draw(vd2)
 
 
 ## violin plots of the distribution of estimated log2 SD ratio
- # Fig. 6 (d)
+ # Fig. S2 (d)
 cgm_genes2 <- intersect(intersect(dv_genes_clrDV,dv_genes_MDSeq), dv_genes_gamlss)
 length(cgm_genes2)
 
@@ -389,7 +389,7 @@ title(adj=0, "(d)")
 
 
 ########################
-## Supplementary Table 4
+## Supplementary Table 6
 ### union_DV_table_BY (GAMLSS use BY FDR)
 union_dv_genes_psp_BY <- union(union(dv_genes_clrDV, dv_genes_MDSeq), dv_genes_gamlss)
 length(union_dv_genes_psp_BY)
