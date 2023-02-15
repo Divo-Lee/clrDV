@@ -26,7 +26,7 @@
 
 
 library(polyester); library(compositions); library(edgeR)
-library(MDSeq); library(missMethyl); library(gamlss)
+library(MDSeq); library(missMethyl); library(gamlss); library(clrDV)
 
 ###############################################
 ### GSE123658_read_counts.gene_level.txt.gz 
