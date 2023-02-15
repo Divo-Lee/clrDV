@@ -26,7 +26,7 @@
 # devtools::install_github("zjdaye/MDSeq")
 
 library(polyester); library(compositions); library(edgeR)
-library(MDSeq); library(missMethyl); library(gamlss)
+library(MDSeq); library(missMethyl); library(gamlss); library(clrDV)
 
 ################################
 ### GSE150318_counts.csv.gz 
