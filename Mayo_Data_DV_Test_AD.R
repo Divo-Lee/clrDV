@@ -193,7 +193,7 @@ clrDV_ratio_down_table <- clrDV_ratio_down_table[order(clrDV_ratio_down_table[,6
 clrDV_ratio_up_genes <- row.names(clrDv_ratio_up_table)
 clrDV_ratio_down_genes <- row.names(clrDV_ratio_down_table)
  ## Gene id convert to gene symbol
-url = "https://biotools.fr/human/ensembl_symbol_converter/"
+url = "https://www.biotools.fr/human/ensembl_symbol_converter/"
  # up ratio
 ids_up = clrDV_ratio_up_genes
 ids_json_up <- toJSON(ids_up)
