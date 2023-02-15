@@ -191,7 +191,7 @@ psp_clrDV_ratio_down_table <- psp_clrDV_ratio_down_table[order(psp_clrDV_ratio_d
 psp_clrDV_ratio_up_genes <- row.names(psp_clrDv_ratio_up_table)
 psp_clrDV_ratio_down_genes <- row.names(psp_clrDV_ratio_down_table)
   ## Gene id convert to gene symbol
-url = "https://biotools.fr/human/ensembl_symbol_converter/"
+url = "https://www.biotools.fr/human/ensembl_symbol_converter/"
  # up ratio
 ids_up = psp_clrDV_ratio_up_genes
 ids_json_up <- toJSON(ids_up)
