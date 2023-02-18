@@ -33,9 +33,9 @@ library(MDSeq); library(missMethyl); library(gamlss); library(clrDV)
 ### Download from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE150318
 ### Kelmer Dataset           
 ################################
-Data3 <- read.csv(gzfile('GSE150318_counts.csv.gz'), header = T, check.names = TRUE)
+Data3 <- read.csv(gzfile('GSE150318_counts.csv.gz'), header = T, check.names = TRUE, row.names = 1)
 dim(Data3)
-row.names(Data3) <- Data3[,1]; Data3 <- Data3[, -1]
+
 data_10weeks <- Data3[ , seq(1,228,2)]
 data_20weeks <- Data3[ , seq(2,228,2)]
 Data3 <- cbind(data_10weeks, data_20weeks)
@@ -195,10 +195,9 @@ DV.test.comparison <- function(data = NULL,
     nf2 <- calcNormFactors(data2, method="TMM")
     els2 <- nf2 * libsizes2
     sf2 <- els2 / exp(mean(log(libsizes2)))
-    norm.data2 <- t(t(data2) / sf2)
 
     contrasts2 <- get.model.matrix(as.factor(group2))
-    fit.MDSeq.dv <- MDSeq(norm.data2,
+    fit.MDSeq.dv <- MDSeq(norm.data2, offsets = sf2,
                           contrast = contrasts2)
     res.MDSeq.dv <- extract.ZIMD(fit.MDSeq.dv,
                                  get='contrast',
@@ -317,17 +316,16 @@ DV.test.comparison <- function(data = NULL,
 
 
 
-### Comparison of methods
-### Be patient, this will take some time 
+### Comparisons of Methods
 ## Comparison One, 2*50 samples
 DV_test1 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                 N.samples = 50, prob.dv = 0.1,
                                 N.simulations = 30, seed = 7)
 DV_test1$FDR; DV_test1$Type_II_error; DV_test1$Time
 
-write.csv(round(DV_test1$FDR, 4), "DV_FDR_20week_50.csv")
-write.csv(round(DV_test1$Type_II_error, 4), "DV_Type_II_error_20week_50.csv")
-write.csv(round(DV_test1$Time, 2), "DV_Time_20week_50.csv")
+write.csv(round(DV_test1$FDR, 4), "DV_FDR_20week_50.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test1$Type_II_error, 4), "DV_Type_II_error_20week_50.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test1$Time, 2), "DV_Time_20week_50.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Two, 2*100 samples
@@ -336,9 +334,9 @@ DV_test2 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                N.simulations = 30, seed = 8)
 DV_test2$FDR; DV_test2$Type_II_error; DV_test2$Time
 
-write.csv(round(DV_test2$FDR, 4), "DV_FDR_20week_100.csv")
-write.csv(round( DV_test2$Type_II_error, 4), "DV_Type_II_error_20week_100.csv")
-write.csv(round(DV_test2$Time, 2), "DV_Time_20week_100.csv")
+write.csv(round(DV_test2$FDR, 4), "DV_FDR_20week_100.csv", quote=FALSE, row.names=T)
+write.csv(round( DV_test2$Type_II_error, 4), "DV_Type_II_error_20week_100.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test2$Time, 2), "DV_Time_20week_100.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Three, 2*125 samples
@@ -347,9 +345,9 @@ DV_test3 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                N.simulations = 30, seed = 9)
 DV_test3$FDR; DV_test3$Type_II_error; DV_test3$Time
 
-write.csv(round(DV_test3$FDR, 4), "DV_FDR_20week_125.csv")
-write.csv(round( DV_test3$Type_II_error, 4), "DV_Type_II_error_20week_125.csv")
-write.csv(round(DV_test3$Time, 2), "DV_Time_20week_125.csv")
+write.csv(round(DV_test3$FDR, 4), "DV_FDR_20week_125.csv", quote=FALSE, row.names=T)
+write.csv(round( DV_test3$Type_II_error, 4), "DV_Type_II_error_20week_125.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test3$Time, 2), "DV_Time_20week_125.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Four, 2*150 samples
@@ -358,9 +356,9 @@ DV_test4 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                N.simulations = 30, seed = 10)
 DV_test4$FDR; DV_test4$Type_II_error; DV_test4$Time
 
-write.csv(round(DV_test4$FDR, 4), "DV_FDR_20week_150.csv")
-write.csv(round( DV_test4$Type_II_error, 4), "DV_Type_II_error_20week_150.csv")
-write.csv(round(DV_test4$Time, 2), "DV_Time_20week_150.csv")
+write.csv(round(DV_test4$FDR, 4), "DV_FDR_20week_150.csv", quote=FALSE, row.names=T)
+write.csv(round( DV_test4$Type_II_error, 4), "DV_Type_II_error_20week_150.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test4$Time, 2), "DV_Time_20week_150.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Five, 2*200 samples
@@ -369,9 +367,9 @@ DV_test5 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                N.simulations = 30, seed = 11)
 DV_test5$FDR; DV_test5$Type_II_error; DV_test5$Time
 
-write.csv(round(DV_test5$FDR, 4), "DV_FDR_20week_200.csv")
-write.csv(round( DV_test5$Type_II_error, 4), "DV_Type_II_error_20week_200.csv")
-write.csv(round(DV_test5$Time, 2), "DV_Time_20week_200.csv")
+write.csv(round(DV_test5$FDR, 4), "DV_FDR_20week_200.csv", quote=FALSE, row.names=T)
+write.csv(round( DV_test5$Type_II_error, 4), "DV_Type_II_error_20week_200.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test5$Time, 2), "DV_Time_20week_200.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Six, 2*250 samples
@@ -380,9 +378,9 @@ DV_test6 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                N.simulations = 30, seed = 12)
 DV_test6$FDR; DV_test6$Type_II_error; DV_test6$Time
 
-write.csv(round(DV_test6$FDR, 4), "DV_FDR_20week_250.csv")
-write.csv(round( DV_test6$Type_II_error, 4), "DV_Type_II_error_20week_250.csv")
-write.csv(round(DV_test6$Time, 2), "DV_Time_20week_250.csv")
+write.csv(round(DV_test6$FDR, 4), "DV_FDR_20week_250.csv", quote=FALSE, row.names=T)
+write.csv(round( DV_test6$Type_II_error, 4), "DV_Type_II_error_20week_250.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test6$Time, 2), "DV_Time_20week_250.csv", quote=FALSE, row.names=T)
 
 
 
@@ -390,46 +388,20 @@ write.csv(round(DV_test6$Time, 2), "DV_Time_20week_250.csv")
 ########################
 ### DV Test Analysis ###
 ########################
-dv.FDR.20w.50samples <- read.csv('DV_FDR_20week_50.csv')
-dv.FDR.20w.100samples <- read.csv('DV_FDR_20week_100.csv')
-dv.FDR.20w.125samples <- read.csv('DV_FDR_20week_125.csv')
-dv.FDR.20w.150samples <- read.csv('DV_FDR_20week_150.csv')
-dv.FDR.20w.200samples <- read.csv('DV_FDR_20week_200.csv')
-dv.FDR.20w.250samples <- read.csv('DV_FDR_20week_250.csv')
-
-row.names(dv.FDR.20w.50samples) <- as.factor(dv.FDR.20w.50samples[, 1])
-dv.FDR.20w.50samples <- dv.FDR.20w.50samples[, -1]
-row.names(dv.FDR.20w.100samples) <- as.factor(dv.FDR.20w.100samples[, 1])
-dv.FDR.20w.100samples <- dv.FDR.20w.100samples[, -1]
-row.names(dv.FDR.20w.125samples) <- as.factor(dv.FDR.20w.125samples[, 1])
-dv.FDR.20w.125samples <- dv.FDR.20w.125samples[, -1]
-row.names(dv.FDR.20w.150samples) <- as.factor(dv.FDR.20w.150samples[, 1])
-dv.FDR.20w.150samples <- dv.FDR.20w.150samples[, -1]
-row.names(dv.FDR.20w.200samples) <- as.factor(dv.FDR.20w.200samples[, 1])
-dv.FDR.20w.200samples <- dv.FDR.20w.200samples[, -1]
-row.names(dv.FDR.20w.250samples) <- as.factor(dv.FDR.20w.250samples[, 1])
-dv.FDR.20w.250samples <- dv.FDR.20w.250samples[, -1]
+dv.FDR.20w.50samples <- read.csv('DV_FDR_20week_50.csv', row.names = 1)
+dv.FDR.20w.100samples <- read.csv('DV_FDR_20week_100.csv', row.names = 1)
+dv.FDR.20w.125samples <- read.csv('DV_FDR_20week_125.csv', row.names = 1)
+dv.FDR.20w.150samples <- read.csv('DV_FDR_20week_150.csv', row.names = 1)
+dv.FDR.20w.200samples <- read.csv('DV_FDR_20week_200.csv', row.names = 1)
+dv.FDR.20w.250samples <- read.csv('DV_FDR_20week_250.csv', row.names = 1)
 
 
-dv.type2.20w.50samples <- read.csv('DV_Type_II_error_20week_50.csv')
-dv.type2.20w.100samples <- read.csv('DV_Type_II_error_20week_100.csv')
-dv.type2.20w.125samples <- read.csv('DV_Type_II_error_20week_125.csv')
-dv.type2.20w.150samples <- read.csv('DV_Type_II_error_20week_150.csv')
-dv.type2.20w.200samples <- read.csv('DV_Type_II_error_20week_200.csv')
-dv.type2.20w.250samples <- read.csv('DV_Type_II_error_20week_250.csv')
-
-row.names(dv.type2.20w.50samples) <- as.factor(dv.type2.20w.50samples[, 1])
-dv.type2.20w.50samples <- dv.type2.20w.50samples[, -1]
-row.names(dv.type2.20w.100samples) <- as.factor(dv.type2.20w.100samples[, 1])
-dv.type2.20w.100samples <- dv.type2.20w.100samples[, -1]
-row.names(dv.type2.20w.125samples) <- as.factor(dv.type2.20w.125samples[, 1])
-dv.type2.20w.125samples <- dv.type2.20w.125samples[, -1]
-row.names(dv.type2.20w.150samples) <- as.factor(dv.type2.20w.150samples[, 1])
-dv.type2.20w.150samples <- dv.type2.20w.150samples[, -1]
-row.names(dv.type2.20w.200samples) <- as.factor(dv.type2.20w.200samples[, 1])
-dv.type2.20w.200samples <- dv.type2.20w.200samples[, -1]
-row.names(dv.type2.20w.250samples) <- as.factor(dv.type2.20w.250samples[, 1])
-dv.type2.20w.250samples <- dv.type2.20w.250samples[, -1]
+dv.type2.20w.50samples <- read.csv('DV_Type_II_error_20week_50.csv', row.names = 1)
+dv.type2.20w.100samples <- read.csv('DV_Type_II_error_20week_100.csv', row.names = 1)
+dv.type2.20w.125samples <- read.csv('DV_Type_II_error_20week_125.csv', row.names = 1)
+dv.type2.20w.150samples <- read.csv('DV_Type_II_error_20week_150.csv', row.names = 1)
+dv.type2.20w.200samples <- read.csv('DV_Type_II_error_20week_200.csv', row.names = 1)
+dv.type2.20w.250samples <- read.csv('DV_Type_II_error_20week_250.csv', row.names = 1)
 
 
 # FDR and average type II error of diffVar
@@ -448,22 +420,15 @@ c(rowMeans(dv.type2.20w.50samples[3, ]),
   rowMeans(dv.type2.20w.250samples[3, ]))
 
 
-### Computing times in seconds
-dv.time.20w.50samples <- read.csv('DV_Time_20week_50.csv')
-dv.time.20w.100samples <- read.csv('DV_Time_20week_100.csv')
-dv.time.20w.125samples <- read.csv('DV_Time_20week_125.csv')
-dv.time.20w.150samples <- read.csv('DV_Time_20week_150.csv')
-dv.time.20w.200samples <- read.csv('DV_Time_20week_200.csv')
-dv.time.20w.250samples <- read.csv('DV_Time_20week_250.csv')
+### Computing Times, in seconds
+dv.time.20w.50samples <- read.csv('DV_Time_20week_50.csv', row.names = 1)
+dv.time.20w.100samples <- read.csv('DV_Time_20week_100.csv', row.names = 1)
+dv.time.20w.125samples <- read.csv('DV_Time_20week_125.csv', row.names = 1)
+dv.time.20w.150samples <- read.csv('DV_Time_20week_150.csv', row.names = 1)
+dv.time.20w.200samples <- read.csv('DV_Time_20week_200.csv', row.names = 1)
+dv.time.20w.250samples <- read.csv('DV_Time_20week_250.csv', row.names = 1)
 
-dv.time.20w.50samples <- dv.time.20w.50samples[, -1]
-dv.time.20w.100samples <- dv.time.20w.100samples[, -1]
-dv.time.20w.125samples <- dv.time.20w.125samples[, -1]
-dv.time.20w.150samples <- dv.time.20w.150samples[, -1]
-dv.time.20w.200samples <- dv.time.20w.200samples[, -1]
-dv.time.20w.250samples <- dv.time.20w.250samples[, -1]
-
- # Mean computing times, in seconds
+ # mean computing times, in seconds
 Time_dv_20w <- matrix(NA, nrow = 6, ncol = 5)
 Time_dv_20w <- rbind(rowMeans(dv.time.20w.50samples),
                      rowMeans(dv.time.20w.100samples),
@@ -471,13 +436,13 @@ Time_dv_20w <- rbind(rowMeans(dv.time.20w.50samples),
                      rowMeans(dv.time.20w.150samples),
                      rowMeans(dv.time.20w.200samples),
                      rowMeans(dv.time.20w.250samples))
-Time_dv_20w[, 3] <- round(Time_dv_20w[, 3], 1)
+Time_dv_20w[ , 3] <- round(Time_dv_20w[, 3], 1)
 Time_dv_20w[, c(1,2,4,5)] <- round(Time_dv_20w[, c(1,2,4,5)])
 row.names(Time_dv_20w) <- c("n=50", "n=100", "n=125", "n=150", "n=200", "n=250")
 colnames(Time_dv_20w) <- c("clrDV","MDSeq","diffVar","GAMLSS-BH", "GAMLSS-BY")
 Time_dv_20w
 
- # standard deviation of computing time
+ # standard deviation of mean time
 Time_sd_dv_20w <- matrix(NA, nrow = 6, ncol = 5)
 Time_sd_dv_20w <- rbind(apply(dv.time.20w.50samples, 1, sd),
                         apply(dv.time.20w.100samples, 1, sd),
@@ -493,7 +458,7 @@ Time_sd_dv_20w
 
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*50 samples
 plot(jitter(as.numeric(dv.FDR.20w.50samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.50samples[4, ]), amount = 0.002),
@@ -528,7 +493,7 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj = 0, "(a)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*100 samples
 plot(jitter(as.numeric(dv.FDR.20w.100samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.100samples[4, ]), amount = 0.002),
@@ -563,7 +528,7 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj = 0, "(b)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*125 samples
 plot(jitter(as.numeric(dv.FDR.20w.125samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.125samples[4, ]), amount = 0.002),
@@ -598,7 +563,7 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj = 0, "(c)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*150 samples
 plot(jitter(as.numeric(dv.FDR.20w.150samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.150samples[4, ]), amount = 0.002),
@@ -633,7 +598,7 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj = 0, "(d)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*200 samples
 plot(jitter(as.numeric(dv.FDR.20w.200samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.200samples[4, ]), amount = 0.002),
@@ -668,7 +633,7 @@ legend("topright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj = 0, "(e)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*250 samples
 plot(jitter(as.numeric(dv.FDR.20w.250samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.250samples[4, ]), amount = 0.002),
@@ -701,5 +666,5 @@ legend("topright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
        cex= 0.7, pt.lwd = c(1.25, 1, 1, 1, 1),
        col = c("red", "blue", rainbow(7)[7],  rainbow(7)[2], "green"))
 title(adj = 0, "(f)")
-
+                     
 ###END###
