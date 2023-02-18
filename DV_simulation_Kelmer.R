@@ -3,7 +3,7 @@
 #RNA-Seq data based on the skew-normal distribution
 #Author: Hongxiang Li
 #Email: chelsea.divo@hotmail.com
-#Last update: 25 September 2022
+#Last update: 18 February 2023
 #R Codes for comparison of methods
 #Part 3: simulation study using the Kelmer dataset 
 ###################################################
