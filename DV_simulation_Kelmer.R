@@ -317,6 +317,7 @@ DV.test.comparison <- function(data = NULL,
 
 
 ### Comparisons of Methods
+### Be patient, this will take some time 
 ## Comparison One, 2*50 samples
 DV_test1 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                 N.samples = 50, prob.dv = 0.1,
