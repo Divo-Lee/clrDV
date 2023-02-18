@@ -25,11 +25,9 @@ library(edgeR); library(sn); library(clrDV)
 ### Download from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE123658
 ### Valentim Data                            
 ##############################################
-Data = read.table(gzfile('GSE123658_read_counts.gene_level.txt.gz'), sep="\t", header = T, check.names = TRUE)
-
-row.names(Data) <- Data[,1]
-Data <- Data[, -1]
+Data = read.table(gzfile('GSE123658_read_counts.gene_level.txt.gz'), sep="\t", header = T, check.names = TRUE, row.names = 1)
 dim(Data)
+
  # filter
 CPM <- cpm(Data)
 keep <- (rowMeans(CPM[,1:43]) > 0.5  & rowMeans(CPM[,44:82]) > 0.5 & apply(Data[,1:43], 1, function(x) length(x[x==0])/length(x)) < 0.85 & apply(Data[,44:82], 1, function(x) length(x[x==0])/length(x)) < 0.85)
@@ -47,11 +45,8 @@ data_d1 <- Data[,44:82]
 ### Download from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE150318
 ### Kelmer Data                
 ################################
-Data2 = read.csv(gzfile('GSE150318_counts.csv.gz'), header = T, check.names = TRUE)
+Data2 = read.csv(gzfile('GSE150318_counts.csv.gz'), header = T, check.names = TRUE, row.names = 1)
 dim(Data2)
-
-row.names(Data2) <- Data2[,1]
-Data2 <- Data2[, -1]
 
 data_10weeks <- Data2[ , seq(1,228,2)]
 data_20weeks <- Data2[ , seq(2,228,2)]
@@ -64,6 +59,7 @@ Data2 <- Data2[keep, ]
 data_10weeks <- Data2[, 1:114]
 # data_20weeks <- Data2[, 115:228]
 
+                                                                                                                                                     
 
 ############################################################
 # modified plot.selm() in "sn" package, for the name of xlab
@@ -264,6 +260,14 @@ title(adj=0, "(a)")
  # MLE
 clr.SN.fit(clr_simu.1[1, ])
 
+ # we can check any other genes in simulated data,
+ # almost all CLR-transformed simulated reads fit skew-normal model well
+for (i in 2:100) {
+  fit_sn <- selm(clr_simu.1[i, ] ~ 1, family="SN") 
+  plot.sn(fit_sn, which=2, 
+          caption = NULL, 
+          main =paste('gene', i, sep=''))
+}                                               
 
 
 #######################################################
@@ -299,7 +303,15 @@ title(adj=0, "(b)")
  # MLE
 clr.SN.fit(clr_simu.2[1, ])
 
-
+                                                       
+ # we can check any other genes in simulated data,
+ # almost all CLR-transformed simulated reads fit skew-normal model well                                                      
+for (i in 2:100) {
+  fit_sn2 <- selm(clr_simu.2[i, ] ~ 1, family="SN") 
+  plot.sn(fit_sn2, which=2, 
+          caption = NULL, 
+          main =paste('gene', i, sep=''))
+}
 ###END###
 
 
