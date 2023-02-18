@@ -3,7 +3,7 @@
 #RNA-Seq data based on the skew-normal distribution
 #Author: Hongxiang Li
 #Email: chelsea.divo@hotmail.com
-#Date: 25 September 2022
+#Date: 18 February 2023
 #R Codes for comparison of methods
 #Part 2: simulation study using the Valentim dataset 
 ######################################################
@@ -33,8 +33,9 @@ library(MDSeq); library(missMethyl); library(gamlss); library(clrDV)
 ### Download from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE123658
 ### Valentim Dataset                        
 ###############################################
-Data = read.table(gzfile('GSE123658_read_counts.gene_level.txt.gz'), sep="\t", header = T, check.names = TRUE)
-row.names(Data) <- Data[, 1]; Data <- Data[, -1]; dim(Data)
+Data = read.table(gzfile('GSE123658_read_counts.gene_level.txt.gz'), sep="\t", header = T, check.names = TRUE, row.names = 1)
+dim(Data)
+
  ## Filtering
 CPM <- cpm(Data)
 keep <- (rowMeans(CPM[,1:43]) > 0.5  & rowMeans(CPM[,44:82]) > 0.5 & apply(Data[,1:43], 1, function(x) length(x[x==0])/length(x)) < 0.85 & apply(Data[,44:82], 1, function(x) length(x[x==0])/length(x)) < 0.85)
@@ -192,12 +193,11 @@ DV.test.comparison <- function(data = NULL,
     nf2 <- calcNormFactors(data2, method="TMM")
     els2 <- nf2 * libsizes2
     sf2 <- els2 / exp(mean(log(libsizes2)))
-    norm.data2 <- t(t(data2) / sf2)
 
     contrasts2 <- get.model.matrix(as.factor(group2))
-    fit.MDSeq.dv <- MDSeq(norm.data2,
+    fit.MDSeq.dv <- MDSeq(norm.data2, offsets = sf2,
                           contrast = contrasts2)
-    res.MDSeq.dv <- extract.ZIMD(fit.MDSeq.dv,
+    res.MDSeq.dv <- extract.ZIMD(fit.MDSeq.dv, 
                                  get='contrast',
                                  compare=list(A="0",B="1"),
                                  log2FC.threshold = 0)
@@ -321,9 +321,9 @@ DV_test1 <- DV.test.comparison(data = data_d1, N.genes = 2000,
                                N.simulations = 30, seed = 1)
 DV_test1$FDR; DV_test1$Type_II_error; DV_test1$Time
 
-write.csv(round(DV_test1$FDR, 4), "DV_FDR_diabetes1_50.csv")
-write.csv(round(DV_test1$Type_II_error, 4), "DV_Type_II_error_diabetes1_50.csv")
-write.csv(round(DV_test1$Time, 2), "DV_Time_diabetes1_50.csv")
+write.csv(round(DV_test1$FDR, 4), "DV_FDR_diabetes1_50.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test1$Type_II_error, 4), "DV_Type_II_error_diabetes1_50.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test1$Time, 2), "DV_Time_diabetes1_50.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Two, 2*100 samples
@@ -332,9 +332,9 @@ DV_test2 <- DV.test.comparison(data = data_d1, N.genes = 2000,
                                N.simulations = 30, seed = 2)
 DV_test2$FDR; DV_test2$Type_II_error; DV_test2$Time
 
-write.csv(round(DV_test2$FDR, 4), "DV_FDR_diabetes1_100.csv")
-write.csv(round(DV_test2$Type_II_error, 4), "DV_Type_II_error_diabetes1_100.csv")
-write.csv(round(DV_test2$Time, 2), "DV_Time_diabetes1_100.csv")
+write.csv(round(DV_test2$FDR, 4), "DV_FDR_diabetes1_100.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test2$Type_II_error, 4), "DV_Type_II_error_diabetes1_100.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test2$Time, 2), "DV_Time_diabetes1_100.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Three, 2*125 samples
@@ -343,9 +343,9 @@ DV_test3 <- DV.test.comparison(data = data_d1, N.genes = 2000,
                                N.simulations = 30, seed = 3)
 DV_test3$FDR; DV_test3$Type_II_error; DV_test3$Time
 
-write.csv(round(DV_test3$FDR, 4), "DV_FDR_diabetes1_125.csv")
-write.csv(round(DV_test3$Type_II_error, 4), "DV_Type_II_error_diabetes1_125.csv")
-write.csv(round(DV_test3$Time, 2), "DV_Time_diabetes1_125.csv")
+write.csv(round(DV_test3$FDR, 4), "DV_FDR_diabetes1_125.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test3$Type_II_error, 4), "DV_Type_II_error_diabetes1_125.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test3$Time, 2), "DV_Time_diabetes1_125.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Four, 2*150 samples
@@ -354,9 +354,9 @@ DV_test4 <- DV.test.comparison(data = data_d1, N.genes = 2000,
                                N.simulations = 30, seed = 4)
 DV_test4$FDR; DV_test4$Type_II_error; DV_test4$Time
 
-write.csv(round(DV_test4$FDR, 4), "DV_FDR_diabetes1_150.csv")
-write.csv(round(DV_test4$Type_II_error, 4) , "DV_Type_II_error_diabetes1_150.csv")
-write.csv(round(DV_test4$Time, 2), "DV_Time_diabetes1_150.csv")
+write.csv(round(DV_test4$FDR, 4), "DV_FDR_diabetes1_150.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test4$Type_II_error, 4) , "DV_Type_II_error_diabetes1_150.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test4$Time, 2), "DV_Time_diabetes1_150.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Five, 2*200 samples
@@ -365,9 +365,9 @@ DV_test5 <- DV.test.comparison(data = data_d1, N.genes = 2000,
                                N.simulations = 30, seed = 5)
 DV_test5$FDR; DV_test5$Type_II_error; DV_test5$Time
 
-write.csv(round(DV_test5$FDR, 4), "DV_FDR_diabetes1_200.csv")
-write.csv(round(DV_test5$Type_II_error, 4), "DV_Type_II_error_diabetes1_200.csv")
-write.csv(round(DV_test5$Time, 2), "DV_Time_diabetes1_200.csv")
+write.csv(round(DV_test5$FDR, 4), "DV_FDR_diabetes1_200.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test5$Type_II_error, 4), "DV_Type_II_error_diabetes1_200.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test5$Time, 2), "DV_Time_diabetes1_200.csv", quote=FALSE, row.names=T)
 
 
 ## Comparison Six, 2*250 samples
@@ -376,55 +376,29 @@ DV_test6 <- DV.test.comparison(data = data_d1, N.genes = 2000,
                                N.simulations = 30, seed = 6)
 DV_test6$FDR; DV_test6$Type_II_error; DV_test6$Time
 
-write.csv(round(DV_test6$FDR, 4), "DV_FDR_diabetes1_250.csv")
-write.csv(round(DV_test6$Type_II_error, 4), "DV_Type_II_error_diabetes1_250.csv")
-write.csv(round(DV_test6$Time, 2), "DV_Time_diabetes1_250.csv")
+write.csv(round(DV_test6$FDR, 4), "DV_FDR_diabetes1_250.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test6$Type_II_error, 4), "DV_Type_II_error_diabetes1_250.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test6$Time, 2), "DV_Time_diabetes1_250.csv", quote=FALSE, row.names=T)
 
 
 
 ########################
 ### DV Test Analysis ###
 ########################
-dv.FDR.d1_new.50samples <- read.csv('DV_FDR_diabetes1_50.csv')
-dv.FDR.d1_new.100samples <- read.csv('DV_FDR_diabetes1_100.csv')
-dv.FDR.d1_new.125samples <- read.csv('DV_FDR_diabetes1_125.csv')
-dv.FDR.d1_new.150samples <- read.csv('DV_FDR_diabetes1_150.csv')
-dv.FDR.d1_new.200samples <- read.csv('DV_FDR_diabetes1_200.csv')
-dv.FDR.d1_new.250samples <- read.csv('DV_FDR_diabetes1_250.csv')
-
-row.names(dv.FDR.d1_new.50samples) <- as.factor(dv.FDR.d1_new.50samples[, 1])
-dv.FDR.d1_new.50samples <- dv.FDR.d1_new.50samples[, -1]
-row.names(dv.FDR.d1_new.100samples) <- as.factor(dv.FDR.d1_new.100samples[, 1])
-dv.FDR.d1_new.100samples <- dv.FDR.d1_new.100samples[, -1]
-row.names(dv.FDR.d1_new.125samples) <- as.factor(dv.FDR.d1_new.125samples[, 1])
-dv.FDR.d1_new.125samples <- dv.FDR.d1_new.125samples[, -1]
-row.names(dv.FDR.d1_new.150samples) <- as.factor(dv.FDR.d1_new.150samples[, 1])
-dv.FDR.d1_new.150samples <- dv.FDR.d1_new.150samples[, -1]
-row.names(dv.FDR.d1_new.200samples) <- as.factor(dv.FDR.d1_new.200samples[, 1])
-dv.FDR.d1_new.200samples <- dv.FDR.d1_new.200samples[, -1]
-row.names(dv.FDR.d1_new.250samples) <- as.factor(dv.FDR.d1_new.250samples[, 1])
-dv.FDR.d1_new.250samples <- dv.FDR.d1_new.250samples[, -1]
+dv.FDR.d1_new.50samples <- read.csv('DV_FDR_diabetes1_50.csv', row.names = 1)
+dv.FDR.d1_new.100samples <- read.csv('DV_FDR_diabetes1_100.csv', row.names = 1)
+dv.FDR.d1_new.125samples <- read.csv('DV_FDR_diabetes1_125.csv', row.names = 1)
+dv.FDR.d1_new.150samples <- read.csv('DV_FDR_diabetes1_150.csv', row.names = 1)
+dv.FDR.d1_new.200samples <- read.csv('DV_FDR_diabetes1_200.csv', row.names = 1)
+dv.FDR.d1_new.250samples <- read.csv('DV_FDR_diabetes1_250.csv', row.names = 1)
 
 
-dv.type2.d1_new.50samples <- read.csv('DV_Type_II_error_diabetes1_50.csv')
-dv.type2.d1_new.100samples <- read.csv('DV_Type_II_error_diabetes1_100.csv')
-dv.type2.d1_new.125samples <- read.csv('DV_Type_II_error_diabetes1_125.csv')
-dv.type2.d1_new.150samples <- read.csv('DV_Type_II_error_diabetes1_150.csv')
-dv.type2.d1_new.200samples <- read.csv('DV_Type_II_error_diabetes1_200.csv')
-dv.type2.d1_new.250samples <- read.csv('DV_Type_II_error_diabetes1_250.csv')
-
-row.names(dv.type2.d1_new.50samples) <- as.factor(dv.type2.d1_new.50samples[, 1])
-dv.type2.d1_new.50samples <- dv.type2.d1_new.50samples[, -1]
-row.names(dv.type2.d1_new.100samples) <- as.factor(dv.type2.d1_new.100samples[, 1])
-dv.type2.d1_new.100samples <- dv.type2.d1_new.100samples[, -1]
-row.names(dv.type2.d1_new.125samples) <- as.factor(dv.type2.d1_new.125samples[, 1])
-dv.type2.d1_new.125samples <- dv.type2.d1_new.125samples[, -1]
-row.names(dv.type2.d1_new.150samples) <- as.factor(dv.type2.d1_new.150samples[, 1])
-dv.type2.d1_new.150samples <- dv.type2.d1_new.150samples[, -1]
-row.names(dv.type2.d1_new.200samples) <- as.factor(dv.type2.d1_new.200samples[, 1])
-dv.type2.d1_new.200samples <- dv.type2.d1_new.200samples[, -1]
-row.names(dv.type2.d1_new.250samples) <- as.factor(dv.type2.d1_new.250samples[, 1])
-dv.type2.d1_new.250samples <- dv.type2.d1_new.250samples[, -1]
+dv.type2.d1_new.50samples <- read.csv('DV_Type_II_error_diabetes1_50.csv', row.names = 1)
+dv.type2.d1_new.100samples <- read.csv('DV_Type_II_error_diabetes1_100.csv', row.names = 1)
+dv.type2.d1_new.125samples <- read.csv('DV_Type_II_error_diabetes1_125.csv', row.names = 1)
+dv.type2.d1_new.150samples <- read.csv('DV_Type_II_error_diabetes1_150.csv', row.names = 1)
+dv.type2.d1_new.200samples <- read.csv('DV_Type_II_error_diabetes1_200.csv', row.names = 1)
+dv.type2.d1_new.250samples <- read.csv('DV_Type_II_error_diabetes1_250.csv', row.names = 1)
 
 
 
@@ -445,20 +419,14 @@ c(rowMeans(dv.type2.d1_new.50samples[3, ]),
 
 
 
-### Computing times in seconds
-dv.time.d1_new.50samples <- read.csv('DV_Time_diabetes1_50.csv')
-dv.time.d1_new.100samples <- read.csv('DV_Time_diabetes1_100.csv')
-dv.time.d1_new.125samples <- read.csv('DV_Time_diabetes1_125.csv')
-dv.time.d1_new.150samples <- read.csv('DV_Time_diabetes1_150.csv')
-dv.time.d1_new.200samples <- read.csv('DV_Time_diabetes1_200.csv')
-dv.time.d1_new.250samples <- read.csv('DV_Time_diabetes1_250.csv')
+### Computing Times, in seconds
+dv.time.d1_new.50samples <- read.csv('...DV_Time_diabetes1_50.csv', row.names = 1)
+dv.time.d1_new.100samples <- read.csv('...DV_Time_diabetes1_100.csv', row.names = 1)
+dv.time.d1_new.125samples <- read.csv('...DV_Time_diabetes1_125.csv', row.names = 1)
+dv.time.d1_new.150samples <- read.csv('...DV_Time_diabetes1_150.csv', row.names = 1)
+dv.time.d1_new.200samples <- read.csv('...DV_Time_diabetes1_200.csv', row.names = 1)
+dv.time.d1_new.250samples <- read.csv('...DV_Time_diabetes1_250.csv', row.names = 1)
 
-dv.time.d1_new.50samples <- dv.time.d1_new.50samples[, -1]
-dv.time.d1_new.100samples <- dv.time.d1_new.100samples[, -1]
-dv.time.d1_new.125samples <- dv.time.d1_new.125samples[, -1]
-dv.time.d1_new.150samples <- dv.time.d1_new.150samples[, -1]
-dv.time.d1_new.200samples <- dv.time.d1_new.200samples[, -1]
-dv.time.d1_new.250samples <- dv.time.d1_new.250samples[, -1]
  # Mean computing time
 Time_dv_d1_new_2000genes <- matrix(NA, nrow = 6, ncol = 5)
 Time_dv_d1_new_2000genes <- rbind(rowMeans(dv.time.d1_new.50samples),
@@ -473,7 +441,7 @@ row.names(Time_dv_d1_new_2000genes) <- c("n=50", "n=100", "n=125", "n=150", "n=2
 colnames(Time_dv_d1_new_2000genes) <- c("clrDV","MDSeq","diffVar","GAMLSS-BH", "GAMLSS-BY")
 Time_dv_d1_new_2000genes   # Average computing Times, in seconds
 
- # standard deviation of computing time
+ # standard deviation of mean time
 Time_sd_dv_d1_new <- matrix(NA, nrow = 6, ncol = 5)
 Time_sd_dv_d1_new <- rbind(apply(dv.time.d1_new.50samples, 1, sd),
                            apply(dv.time.d1_new.100samples, 1, sd),
@@ -489,7 +457,7 @@ Time_sd_dv_d1_new
 
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*50 samples
 plot(jitter(as.numeric(dv.FDR.d1_new.50samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.d1_new.50samples[4, ]), amount = 0.002),
@@ -525,7 +493,7 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj=0, "(a)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*100 samples
 plot(jitter(as.numeric(dv.FDR.d1_new.100samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.d1_new.100samples[4, ]), amount = 0.002),
@@ -560,7 +528,7 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj=0, "(b)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*125 samples
 plot(jitter(as.numeric(dv.FDR.d1_new.125samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.d1_new.125samples[4, ]), amount = 0.002),
@@ -596,7 +564,7 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj=0, "(c)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*150 samples
 plot(jitter(as.numeric(dv.FDR.d1_new.150samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.d1_new.150samples[4, ]), amount = 0.002),
@@ -632,7 +600,7 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj=0, "(d)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*200 samples
 plot(jitter(as.numeric(dv.FDR.d1_new.200samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.d1_new.200samples[4, ]), amount = 0.002),
@@ -668,7 +636,7 @@ legend("topleft", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
 title(adj=0, "(e)")
 
 
-### Scatter plots
+### Jitter Plots
 ### 2*250 samples
 plot(jitter(as.numeric(dv.FDR.d1_new.250samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.d1_new.250samples[4, ]), amount = 0.002),
