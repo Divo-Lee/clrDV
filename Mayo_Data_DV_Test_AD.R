@@ -3,7 +3,7 @@
 #RNA-Seq data based on the skew-normal distribution
 #Author: Hongxiang Li
 #Email: chelsea.divo@hotmail.com
-#Latest update: 25 September 2022
+#Latest update: 21 Feb. 2023
 #R Codes for DV test on Mayo RNA-Seq dataset
 #Part 4: control vs. AD comparison
 #######################################################
@@ -35,9 +35,8 @@ library(httr); library(jsonlite)
 # Request permission from https://adknowledgeportal.synapse.org/ (look for Mayo RNAseq study)
 
 # raw count table
-ad_counts <- read.csv('MayoRNAseq_RNAseq_TCX_geneCounts.csv')
-row.names(ad_counts) <- ad_counts$ensembl_id
-ad_counts <- ad_counts[, -1]; dim(ad_counts)
+ad_counts <- read.csv('MayoRNAseq_RNAseq_TCX_geneCounts.csv', row.names = 1)
+dim(ad_counts)
 # meta-data
 ad_meta <- read.csv('MayoRNAseq_individual_metadata_031422.csv')
 sum(is.na(ad_meta$diagnosis)) # check NA in disease name column
@@ -92,16 +91,15 @@ t1 <- proc.time()
 clr.counts2 <- clr.transform(data = mayo_counts_filter)
 s.d._test_results <- clrDV(clr.counts2, group = group2)
 sum(is.na(s.d._test_results)) # check NA value
-s.d._test_results <- na.omit(s.d._test_results)
-dv_table_clrDV <- s.d._test_results[s.d._test_results[, 5] < 0.05, ]
+s.d._test_results <- as.data.frame(s.d._test_results)
+dv_table_clrDV <- s.d._test_results[s.d._test_results$adj_pval < 0.05, ]
 dv_genes_clrDV <- row.names(dv_table_clrDV)
 as.numeric(proc.time() - t1)[3]
   # additional information for downstream analysis
-neg_log10_q <- -log10(s.d._test_results[, 5]) # q-value is the adjusted p-value
-SD_ratio <- s.d._test_results[,10]/s.d._test_results[, 6] # sigma.2/sigam.1
-s.d._test_results <- cbind(s.d._test_results, SD_ratio, neg_log10_q)
-s.d._test <- s.d._test_results[, c(1,2,3,4,5,14,15)]
-dv_table_clrDV <- s.d._test[s.d._test[, 5] < 0.05, ]
+neg_log10_q <- -log10(s.d._test_results$adj_pval) 
+SD_ratio <- s.d._test_results$sigma2/s.d._test_results$sigma1 
+s.d._test <- cbind(s.d._test_results[, 1:5], SD_ratio, neg_log10_q)
+dv_table_clrDV <- s.d._test[s.d._test$adj_pval < 0.05, ]
 dim(s.d._test); dim(dv_table_clrDV); length(dv_genes_clrDV)
 
 
@@ -114,10 +112,9 @@ libsizes2 <- colSums(data2)
 nf2 <- calcNormFactors(data2, method="TMM")
 els2 <- nf2 * libsizes2
 sf2 <- els2 / exp(mean(log(libsizes2)))
-norm.data2 <- t(t(data2) / sf2)
 
 contrasts2 <- get.model.matrix(as.factor(group2))
-fit.MDSeq.dv <- MDSeq(norm.data2,
+fit.MDSeq.dv <- MDSeq(norm.data2, offsets=sf2,
                       contrast = contrasts2)
 res.MDSeq.dv <- extract.ZIMD(fit.MDSeq.dv,
                              get='contrast',
@@ -127,7 +124,10 @@ res.MDSeq.dv <- na.omit(res.MDSeq.dv)
 dv_table_MDSeq <- res.MDSeq.dv[res.MDSeq.dv$FDR.dispersion < 0.05, ]
 dv_genes_MDSeq <- row.names(dv_table_MDSeq) # DV genes called
 as.numeric(proc.time() - t2)[3]
-dim(res.MDSeq.dv); length(dv_genes_MDSeq)
+dim(res.MDSeq.dv)
+dim(mayo_counts_filter)[1] - dim(res.MDSeq.dv)[1]  # the number of genes which got NA values
+# There are 45 genes DV test return NA values
+length(dv_genes_MDSeq)
 
 
 
@@ -184,16 +184,16 @@ dim(gamlss_NB); dim(dv_table_gamlss); length(dv_genes_gamlss)
 ########################
 
 ## clrDV AD DV genes list (Supplementary Table 3)
-clrDv_ratio_up_table <- dv_table_clrDV[dv_table_clrDV[, 6] > 1, ]
-clrDV_ratio_down_table <- dv_table_clrDV[dv_table_clrDV[, 6] < 1, ]
+clrDv_ratio_up_table <- dv_table_clrDV[dv_table_clrDV$SD_ratio > 1, ]
+clrDV_ratio_down_table <- dv_table_clrDV[dv_table_clrDV$SD_ratio < 1, ]
 dim(clrDv_ratio_up_table); dim(clrDV_ratio_down_table)
 
-clrDv_ratio_up_table <- clrDv_ratio_up_table[order(clrDv_ratio_up_table[,6]),]
-clrDV_ratio_down_table <- clrDV_ratio_down_table[order(clrDV_ratio_down_table[,6]),]
+clrDv_ratio_up_table <- clrDv_ratio_up_table[order(clrDv_ratio_up_table$SD_ratio),]
+clrDV_ratio_down_table <- clrDV_ratio_down_table[order(clrDV_ratio_down_table$SD_ratio),]
 clrDV_ratio_up_genes <- row.names(clrDv_ratio_up_table)
 clrDV_ratio_down_genes <- row.names(clrDV_ratio_down_table)
  ## Gene id convert to gene symbol
-url = "https://www.biotools.fr/human/ensembl_symbol_converter/"
+url = "https://www.biotools.fr/human/ensembl_symbol_converter"
  # up ratio
 ids_up = clrDV_ratio_up_genes
 ids_json_up <- toJSON(ids_up)
@@ -203,9 +203,9 @@ output_up <- fromJSON(content(r_up, "text"), flatten=TRUE)
 output_up[sapply(output_up, is.null)] <- NA
 gene_symbol <- unlist(output_up, use.names = FALSE)
 clrDv_ratio_up_table <- cbind.data.frame(gene_symbol, clrDv_ratio_up_table)
-clrDv_ratio_up_table <- clrDv_ratio_up_table[, c(1,7,6)]
+clrDv_ratio_up_table <- clrDv_ratio_up_table[, c("gene_symbol", "SD_ratio", "adj_pval")]
 # clrDv_ratio_up_table
-# write.csv(clrDv_ratio_up_table, "AD_DVgenes_up_ratio.csv")
+# write.csv(clrDv_ratio_up_table, "AD_DV_genes_up_ratio.csv", quote = F, row.names = T)
 
  # down ratio
 ids_down = clrDV_ratio_down_genes
@@ -221,14 +221,14 @@ for (i in 1:length(ids_down)) {
   }
 } # replace the null gene symbol with gene id
 clrDV_ratio_down_table <- cbind.data.frame(gene_symbol, clrDV_ratio_down_table)
-clrDV_ratio_down_table <- clrDV_ratio_down_table[, c(1,7,6)]
- # write.csv(clrDV_ratio_down_table, "AD_DVgenes_down_ratio.csv")
+clrDV_ratio_down_table <- clrDV_ratio_down_table[, c("gene_symbol", "SD_ratio", "adj_pval")]
+ # write.csv(clrDV_ratio_down_table, "AD_DV_genes_down_ratio.csv", quote = F, row.names = T)
  # head(clrDV_ratio_down_table)
 
 
 #########################
 ## volcano plot for clrDV
- # Fig. S1 (a)
+ # Fig. 4 (a)
 par(mar= c(5, 4.6, 4 ,1))
 plot(log(SD_ratio,2), sqrt(neg_log10_q),
      xlim = c(-2, 2), ylim = c(0, 3.5),
@@ -250,7 +250,7 @@ diff_MDSeq1 <- setdiff(setdiff(dv_genes_MDSeq, dv_genes_clrDV), dv_genes_gamlss)
 cgm_genes1 <- intersect(intersect(dv_genes_clrDV,dv_genes_MDSeq), dv_genes_gamlss)
 
 ## Venn Diagram (BH)
- # Fig. 4 (a)
+ # Fig. 5 (a)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS_BH = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -272,7 +272,7 @@ vd <- venn.diagram(list(clrDV=clrDV,MDSeq=MDSeq,"GAMLSS-BH"=GAMLSS_BH),
 grid.draw(vd)
 
 
- # Fig. 4 (c)
+ # Fig. 5 (c)
 vioplot(log2(s.d._test[cgm_genes1, 6]),
         log2(s.d._test[diff_clrDV1, 6]),
         log2(s.d._test[diff_gamlss1, 6]),
@@ -293,14 +293,14 @@ title(adj=0, "(c)")
 
 
 
-###############
+#########################
 ## (Supplementary Table 5)
-## union_DV_table_BH (GAMLSS use BH FDR) 
+## union_DV_table_BH (GAMLSS use BH FDR)
 union_dv_genes_AD_BH <- union(union(dv_genes_clrDV, dv_genes_MDSeq),
                               dv_genes_gamlss)
 length(union_dv_genes_AD_BH)
 
-union_dv_table_AD_BH <- s.d._test_results[union_dv_genes_AD_BH, c(14,5)]
+union_dv_table_AD_BH <- s.d._test[union_dv_genes_AD_BH, c("SD_ratio", "adj_pval")]
 indicator_clrDV <- as.integer(union_dv_genes_AD_BH %in% dv_genes_clrDV)
 indicator_MDSeq <- as.integer(union_dv_genes_AD_BH %in% dv_genes_MDSeq)
 indicator_gamlss_BH <- as.integer(union_dv_genes_AD_BH %in% dv_genes_gamlss)
@@ -322,18 +322,18 @@ for (i in 1:length(ids)) {
 }
 union_dv_table_AD_BH <- cbind.data.frame(gene_symbol, union_dv_table_AD_BH)
  # ranked by SD ratio
-union_dv_table_AD_BH <- union_dv_table_AD_BH[order(union_dv_table_AD_BH[ ,2]) , ]
- # write.csv(union_dv_table_AD_BH, "union_dv_table_AD_BH.csv")
+union_dv_table_AD_BH <- union_dv_table_AD_BH[order(union_dv_table_AD_BH$SD_ratio) , ]
+ # write.csv(union_dv_table_AD_BH, "union_DV_table_AD_BH.csv", quote = F, row.names = T)
  # head(union_dv_table_AD_BH)
 
 # unique dv genes detected by clrDV
  # BH means that GAMLSS used BH FDR
 unique_clrDV_dv_genes_AD_BH <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq)
 unique_clrDV_dv_table_AD_BH <- union_dv_table_AD_BH[unique_clrDV_dv_genes_AD_BH, 1:3]
-unique_clrDV_dv_table_AD_BH <- unique_clrDV_dv_table_AD_BH[order(unique_clrDV_dv_table_AD_BH[,2]),]
+unique_clrDV_dv_table_AD_BH <- unique_clrDV_dv_table_AD_BH[order(unique_clrDV_dv_table_AD_BH$SD_ratio),]
 unique_clrDV_dv_table_AD_BH
- # write.csv(unique_clrDV_dv_table_AD_BH, "unique_clrDV_dv_table_AD_BH.csv")
- 
+ # write.csv(unique_clrDV_dv_table_AD_BH, "unique_clrDV_DV_table_AD_BH.csv", quote = F, row.names = T)
+
 
 
 ################################################
@@ -345,7 +345,7 @@ dv_genes_gamlss <- row.names(dv_table_gamlss)
 length(setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq))
 
 ## Venn Diagram (BY)
- # Fig. 4 (b)
+ # Fig. 5 (b)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS_BY = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -362,14 +362,13 @@ vd2 <- venn.diagram(list(clrDV=clrDV,MDSeq=MDSeq,"GAMLSS-BY"=GAMLSS_BY),
                   col="transparent",
                   fill=c('red','green','cornflowerblue'),
                   cat.col="black",
-                  #                  reverse=TRUE,
                   height = 400, width = 400)
  # grid.arrange(gTree(children=vd2), top=grid::textGrob(expression(bold("(b)")), x = 0.1,  hjust = 0))
 grid.draw(vd2)
 
 
 ## violin plots
-# Fig. 4 (d)
+# Fig. 5 (d)
 diff_clrDV2 <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq)
 diff_gamlss2 <- setdiff(setdiff(dv_genes_gamlss, dv_genes_clrDV), dv_genes_MDSeq)
 diff_MDSeq2 <- setdiff(setdiff(dv_genes_MDSeq, dv_genes_clrDV), dv_genes_gamlss)
@@ -388,8 +387,8 @@ vioplot(log2(s.d._test[cgm_genes2, 6]),
         horizontal = F)
 stripchart(list(log2(s.d._test[cgm_genes2, 6]),
                 log2(s.d._test[diff_clrDV2, 6]),
-                log2(s.d._test[diff_gamlss2,6]),
-                log2(s.d._test[diff_MDSeq2,6]) ),
+                log2(s.d._test[diff_gamlss2, 6]),
+                log2(s.d._test[diff_MDSeq2, 6]) ),
            vertical = T, pch ="." , cex = 3.5,
            method = "jitter", add = T, lwd =3,
            col = c(rgb(0,0,0,0.1)))
@@ -398,14 +397,14 @@ title(adj=0, "(d)")
 
 
 ### ### ### ### ###
-### union_DV_table_BY (GAMLSS use BY FDR) 
+### union_DV_table_BY (GAMLSS use BY FDR)
 ## (Supplementary Table 5)
 dv_genes_gamlss_BY <- row.names(dv_table_gamlss)
 union_dv_genes_AD_BY <- union(union(dv_genes_clrDV, dv_genes_MDSeq),
                               dv_genes_gamlss_BY)
 length(union_dv_genes_AD_BY)
 
-union_dv_table_AD_BY <- s.d._test_results[union_dv_genes_AD_BY, c(14,5)]
+union_dv_table_AD_BY <- s.d._test[union_dv_genes_AD_BY, c("SD_ratio", "adj_pval")]
 indicator_clrDV <- as.integer(union_dv_genes_AD_BY %in% dv_genes_clrDV)
 indicator_MDSeq <- as.integer(union_dv_genes_AD_BY %in% dv_genes_MDSeq)
 indicator_gamlss_BY <- as.integer(union_dv_genes_AD_BY %in% dv_genes_gamlss_BY)
@@ -426,22 +425,22 @@ for (i in 1:length(ids)) {
   }
 }
 union_dv_table_AD_BY <- cbind.data.frame(gene_symbol, union_dv_table_AD_BY)
-union_dv_table_AD_BY <- union_dv_table_AD_BY[order(union_dv_table_AD_BY[, 2]), ]
- # write.csv(union_dv_table_AD_BY, "union_dv_table_AD_BY.csv")
+union_dv_table_AD_BY <- union_dv_table_AD_BY[order(union_dv_table_AD_BY$SD_ratio), ]
+ # write.csv(union_dv_table_AD_BY, "union_DV_table_AD_BY.csv", quote = F, row.names = T)
  # head(union_dv_table_AD_BY)
 
 # unique dv genes detected by clrDV
 unique_clrDV_dv_genes_AD_BY <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss_BY), dv_genes_MDSeq)
 unique_clrDV_dv_table_AD_BY <- union_dv_table_AD_BY[unique_clrDV_dv_genes_AD_BY, c(1,2,3)]
 dim(unique_clrDV_dv_table_AD_BY)
-unique_clrDV_dv_table_AD_BY <- unique_clrDV_dv_table_AD_BY[order(unique_clrDV_dv_table_AD_BY[,2]),]
- # write.csv(unique_clrDV_dv_table_AD_BY, "unique_clrDV_dv_table_AD_BY.csv")
+unique_clrDV_dv_table_AD_BY <- unique_clrDV_dv_table_AD_BY[order(unique_clrDV_dv_table_AD_BY$SD_ratio),]
+ # write.csv(unique_clrDV_dv_table_AD_BY, "unique_clrDV_DV_table_AD_BY.csv", quote = F, row.names = T)
  # head(unique_clrDV_dv_table_AD_BY)
 
 
 ########################################
 ## Violin plots for large-magnitude SD ratio DV genes
-## Fig. S3
+## Fig. 7
 top_dv_genes_to_plot <- c("ENSG00000142494", "ENSG00000119147",
                           "ENSG00000124107", "ENSG00000119681",
                           "ENSG00000203618", "ENSG00000141456")
@@ -467,7 +466,5 @@ for (i in 1:6) {
              method="jitter", vertical=F,  add=TRUE,
              pch=1, cex=0.5, col="black")
   title(adj=0, labels[i])
-}
-
 
 ###END###
