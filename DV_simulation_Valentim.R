@@ -3,7 +3,7 @@
 #RNA-Seq data based on the skew-normal distribution
 #Author: Hongxiang Li
 #Email: chelsea.divo@hotmail.com
-#Date: 18 February 2023
+#Date: 21 February 2023
 #R Codes for comparison of methods
 #Part 2: simulation study using the Valentim dataset 
 ######################################################
