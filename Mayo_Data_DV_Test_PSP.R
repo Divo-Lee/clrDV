@@ -3,7 +3,7 @@
 #RNA-Seq data based on the skew-normal distribution
 #Author: Hongxiang Li
 #Email: chelsea.divo@hotmail.com
-#Latest update: 25 September 2022
+#Latest update: 21 Feb. 2023
 #R Codes for DV test on Mayo RNA-Seq dataset
 #Part 5: control vs. PSP comparison
 ###################################################
@@ -35,9 +35,8 @@ library(httr); library(jsonlite)
 # Request permission from https://adknowledgeportal.synapse.org/ (look for Mayo RNAseq study)
 
  ## raw count table
-ad_counts <- read.csv('MayoRNAseq_RNAseq_TCX_geneCounts.csv')
-row.names(ad_counts) <- ad_counts$ensembl_id
-ad_counts <- ad_counts[, -1]; dim(ad_counts)
+ad_counts <- read.csv('MayoRNAseq_RNAseq_TCX_geneCounts.csv', row.names = 1)
+dim(ad_counts)
  ## meta-data
 ad_meta <- read.csv('MayoRNAseq_individual_metadata_031422.csv')
 # remove samples give NA in disease name column
@@ -91,16 +90,16 @@ t1 <- proc.time()
 clr.counts2 <- clr.transform(data = mayo_counts_filter2)
 s.d._test_results <- clrDV(clr.counts2, group = group3)
 sum(is.na(s.d._test_results))
-s.d._test_results <- na.omit(s.d._test_results)
-dv_table_clrDV <- s.d._test_results[s.d._test_results[, 5] < 0.05, ]
+#s.d._test_results <- na.omit(s.d._test_results)
+s.d._test_results <- as.data.frame(s.d._test_results)
+dv_table_clrDV <- s.d._test_results[s.d._test_results$adj_pval < 0.05, ]
 dv_genes_clrDV <- row.names(dv_table_clrDV)
 as.numeric(proc.time() - t1)[3]
   # additional information for downstream analysis
-neg_log10_q <- -log10(s.d._test_results[, 5]) # 5th column, BY-adjusted p-value
-SD_ratio <- s.d._test_results[,10]/s.d._test_results[,6] # sigma.2/sigam.1
-s.d._test_results <- cbind(s.d._test_results, SD_ratio, neg_log10_q)
-s.d._test <- s.d._test_results[, c(1,2,3,4,5,14,15)]
-dv_table_clrDV <- s.d._test[s.d._test[, 5] < 0.05, ]
+neg_log10_q <- -log10(s.d._test_results$adj_pval) 
+SD_ratio <- s.d._test_results$sigma2/s.d._test_results$sigma1 # sigma.2/sigam.1
+s.d._test <- cbind(s.d._test_results[1:5], SD_ratio, neg_log10_q)
+dv_table_clrDV <- s.d._test[s.d._test$adj_pval < 0.05, ]
 dim(s.d._test); dim(dv_table_clrDV); length(dv_genes_clrDV)
 
 
@@ -112,9 +111,9 @@ libsizes2 <- colSums(data2)
 nf2 <- calcNormFactors(data2, method="TMM")
 els2 <- nf2 * libsizes2
 sf2 <- els2 / exp(mean(log(libsizes2)))
-norm.data2 <- t(t(data2) / sf2)
+
 contrasts2 <- get.model.matrix(as.factor(group3))
-fit.MDSeq.dv <- MDSeq(norm.data2,
+fit.MDSeq.dv <- MDSeq(norm.data2, offsets = sf2,
                       contrast = contrasts2)
 res.MDSeq.dv <- extract.ZIMD(fit.MDSeq.dv,
                              get='contrast',
@@ -125,7 +124,10 @@ res.MDSeq.dv <- na.omit(res.MDSeq.dv)
 dv_table_MDSeq <- res.MDSeq.dv[res.MDSeq.dv$FDR.dispersion < 0.05, ]
 dv_genes_MDSeq <- row.names(dv_table_MDSeq) # True positive DV genes
 as.numeric(proc.time() - t2)[3]
-dim(res.MDSeq.dv); length(dv_genes_MDSeq)
+dim(res.MDSeq.dv)
+dim(mayo_counts_filter2)[1] - dim(res.MDSeq.dv)[1]  # the number of genes which got NA values
+ # there are 45 genes return NA values
+length(dv_genes_MDSeq)
 
 
 
@@ -182,12 +184,12 @@ dim(gamlss_NB); length(dv_genes_gamlss)
 ### Analysis ###
 ################
 ## clrDV PSP DV genes list (Supplementary Table 4)
-psp_clrDv_ratio_up_table <- dv_table_clrDV[dv_table_clrDV[, 6] > 1, ]
-psp_clrDV_ratio_down_table <- dv_table_clrDV[dv_table_clrDV[, 6] < 1, ]
+psp_clrDv_ratio_up_table <- dv_table_clrDV[dv_table_clrDV$SD_ratio > 1, ]
+psp_clrDV_ratio_down_table <- dv_table_clrDV[dv_table_clrDV$SD_ratio < 1, ]
 dim(psp_clrDv_ratio_up_table); dim(psp_clrDV_ratio_down_table)
   # ranked
-psp_clrDv_ratio_up_table <- psp_clrDv_ratio_up_table[order(psp_clrDv_ratio_up_table[,6]),]
-psp_clrDV_ratio_down_table <- psp_clrDV_ratio_down_table[order(psp_clrDV_ratio_down_table[,6]),]
+psp_clrDv_ratio_up_table <- psp_clrDv_ratio_up_table[order(psp_clrDv_ratio_up_table$SD_ratio),]
+psp_clrDV_ratio_down_table <- psp_clrDV_ratio_down_table[order(psp_clrDV_ratio_down_table$SD_ratio),]
 psp_clrDV_ratio_up_genes <- row.names(psp_clrDv_ratio_up_table)
 psp_clrDV_ratio_down_genes <- row.names(psp_clrDV_ratio_down_table)
   ## Gene id convert to gene symbol
@@ -201,9 +203,9 @@ output_up <- fromJSON(content(r_up, "text"), flatten=TRUE)
 output_up[sapply(output_up, is.null)] <- NA
 gene_symbol <- unlist(output_up, use.names = FALSE)
 psp_clrDv_ratio_up_table <- cbind.data.frame(gene_symbol, psp_clrDv_ratio_up_table)
-psp_clrDv_ratio_up_table <- psp_clrDv_ratio_up_table[, c(1,7,6)]
+psp_clrDv_ratio_up_table <- psp_clrDv_ratio_up_table[, c("gene_symbol", "SD_ratio", "adj_pval")]
 psp_clrDv_ratio_up_table
-  # write.csv(psp_clrDv_ratio_up_table, "psp_DVgenes_up_ratio.csv")
+# write.csv(psp_clrDv_ratio_up_table, "psp_DV_genes_up_ratio.csv", quote = F, row.names = T)
 
 # down ratio
 ids_down = psp_clrDV_ratio_down_genes
@@ -219,8 +221,8 @@ for (i in 1:length(ids_down)) {
   }
 } # replace the null gene symbol with gene id
 psp_clrDV_ratio_down_table <- cbind.data.frame(gene_symbol, psp_clrDV_ratio_down_table)
-psp_clrDV_ratio_down_table <- psp_clrDV_ratio_down_table[, c(1,7,6)]
- # write.csv(psp_clrDV_ratio_down_table, "psp_DVgenes_down_ratio.csv")
+psp_clrDV_ratio_down_table <- psp_clrDV_ratio_down_table[, c("gene_symbol", "SD_ratio", "adj_pval")]
+# write.csv(psp_clrDV_ratio_down_table, "psp_DVgenes_down_ratio.csv", quote = F, row.names = T)
  # head(psp_clrDV_ratio_down_table)
 
 
@@ -256,7 +258,7 @@ vd <- venn.diagram(list(clrDV=clrDV,MDSeq=MDSeq,"GAMLSS-BH"=GAMLSS),
                   col="transparent",
                   fill=c('red','green','cornflowerblue'),
                   cat.col="black",
-                  height = 400, width = 350)
+                  height = 400, width = 400)
  # grid.arrange(gTree(children=vd), top=textGrob(expression(bold("(a)")), x = 0.1,  hjust = 0))
 grid.draw(vd)
 
@@ -297,7 +299,7 @@ title(adj=0, "(c)")
 union_dv_genes_psp_BH <- union(union(dv_genes_clrDV, dv_genes_MDSeq), dv_genes_gamlss)
 length(union_dv_genes_psp_BH)
 
-union_dv_table_psp_BH <- s.d._test_results[union_dv_genes_psp_BH, c(14,5)]
+union_dv_table_psp_BH <- s.d._test[union_dv_genes_psp_BH, c("SD_ratio", "adj_pval")]
 indicator_clrDV <- as.integer(union_dv_genes_psp_BH %in% dv_genes_clrDV)
 indicator_MDSeq <- as.integer(union_dv_genes_psp_BH %in% dv_genes_MDSeq)
 indicator_gamlss_BH <- as.integer(union_dv_genes_psp_BH %in% dv_genes_gamlss)
@@ -318,15 +320,15 @@ for (i in 1:length(ids)) {
   }
 }
 union_dv_table_psp_BH <- cbind.data.frame(gene_symbol, union_dv_table_psp_BH)
-union_dv_table_psp_BH <- union_dv_table_psp_BH[order(union_dv_table_psp_BH[, 2]) , ]
- # write.csv(union_dv_table_psp_BH, "union_dv_table_psp_BH.csv")
+union_dv_table_psp_BH <- union_dv_table_psp_BH[order(union_dv_table_psp_BH$SD_ratio) , ]
+# write.csv(union_dv_table_psp_BH, "union_DV_table_psp_BH.csv", quote = F, row.names = T)
  # head(union_dv_table_psp_BH)
 
 ## unique dv genes detected by clrDV (GAMLSS use BH FDR)
 unique_clrDV_dv_genes_psp_BH <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq)
 unique_clrDV_dv_table_psp_BH <- union_dv_table_psp_BH[unique_clrDV_dv_genes_psp_BH, c(1,2,3)]
 unique_clrDV_dv_table_psp_BH <- unique_clrDV_dv_table_psp_BH[order(unique_clrDV_dv_table_psp_BH[,2]),]
- # write.csv(unique_clrDV_dv_table_psp_BH, "unique_clrDV_dv_table_psp_BH.csv")
+# write.csv(unique_clrDV_dv_table_psp_BH, "unique_clrDV_DV_table_psp_BH.csv", quote = F, row.names = T)
  # head(unique_clrDV_dv_table_psp_BH)
 
 
@@ -394,7 +396,7 @@ title(adj=0, "(d)")
 union_dv_genes_psp_BY <- union(union(dv_genes_clrDV, dv_genes_MDSeq), dv_genes_gamlss)
 length(union_dv_genes_psp_BY)
 
-union_dv_table_psp_BY <- s.d._test_results[union_dv_genes_psp_BY, c(14,5)]
+union_dv_table_psp_BY <- s.d._test[union_dv_genes_psp_BY,  c("SD_ratio", "adj_pval")]
 indicator_clrDV <- as.integer(union_dv_genes_psp_BY %in% dv_genes_clrDV)
 indicator_MDSeq <- as.integer(union_dv_genes_psp_BY %in% dv_genes_MDSeq)
 indicator_gamlss_BY <- as.integer(union_dv_genes_psp_BY %in% dv_genes_gamlss)
@@ -415,17 +417,16 @@ for (i in 1:length(ids)) {
   }
 }
 union_dv_table_psp_BY <- cbind.data.frame(gene_symbol, union_dv_table_psp_BY)
-union_dv_table_psp_BY <- union_dv_table_psp_BY[order(union_dv_table_psp_BY[, 2]), ]
- # write.csv(union_dv_table_psp_BY, "union_dv_table_psp_BY.csv")
+union_dv_table_psp_BY <- union_dv_table_psp_BY[order(union_dv_table_psp_BY$SD_ratio), ]
+# write.csv(union_dv_table_psp_BY, "union_DV_table_psp_BY.csv", quote = F, row.names = T)
  # head(union_dv_table_psp_BY)
 
 # unique dv genes detected by clrDV
 unique_clrDV_dv_genes_psp_BY <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq)
 unique_clrDV_dv_table_psp_BY <- union_dv_table_psp_BY[unique_clrDV_dv_genes_psp_BY, c(1,2,3)]
 dim(unique_clrDV_dv_table_psp_BY)
-unique_clrDV_dv_table_psp_BY <- unique_clrDV_dv_table_psp_BY[order(unique_clrDV_dv_table_psp_BY[, 2]), ]
- # write.csv(unique_clrDV_dv_table_psp_BY, "unique_clrDV_dv_table_psp_BY.csv")
+unique_clrDV_dv_table_psp_BY <- unique_clrDV_dv_table_psp_BY[order(unique_clrDV_dv_table_psp_BY$SD_ratio), ]
+# write.csv(unique_clrDV_dv_table_psp_BY, "unique_clrDV_DV_table_psp_BY.csv", quote = F, row.names = T)
  # head(unique_clrDV_dv_table_psp_BY)
-
 
 ###END###
