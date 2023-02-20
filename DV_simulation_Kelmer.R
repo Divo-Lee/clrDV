@@ -3,7 +3,7 @@
 #RNA-Seq data based on the skew-normal distribution
 #Author: Hongxiang Li
 #Email: chelsea.divo@hotmail.com
-#Last update: 18 February 2023
+#Last update: 21 February 2023
 #R Codes for comparison of methods
 #Part 3: simulation study using the Kelmer dataset 
 ###################################################
@@ -461,26 +461,26 @@ Time_sd_dv_20w
 
 ### Jitter Plots
 ### 2*50 samples
-plot(jitter(as.numeric(dv.FDR.d1_new.50samples[4, ]), amount = 0.002),
-     jitter(as.numeric(dv.type2.d1_new.50samples[4, ]), amount = 0.002),
+plot(jitter(as.numeric(dv.FDR.20w.50samples[4, ]), amount = 0.002),
+     jitter(as.numeric(dv.type2.20w.50samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1, col = "#1b9e77", pch = 43,
-     xlim = c(0, 0.35), ylim = c(0, 0.9),
+     xlim = c(0, 0.15), ylim = c(0, 0.8),
      xlab = "FDR", ylab = "Type II Error")
 
-points(jitter(as.numeric(dv.FDR.d1_new.50samples[5, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.50samples[5, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.50samples[5, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.50samples[5, ]), amount = 0.002),
        lwd =1.5, cex=1, col = "#7570b3", pch =15)
 
-points(jitter(as.numeric(dv.FDR.d1_new.50samples[2, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.50samples[2, ]), amount = 0.002),
-       col = "#1b9e77", lwd =1.5, cex=1, pch = 95)
+points(jitter(as.numeric(dv.FDR.20w.50samples[2, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.50samples[2, ]), amount = 0.002),
+       col = "#1b9e77", lwd =1.5, cex=1, pch = 95 )
 
-points(jitter(as.numeric(dv.FDR.d1_new.50samples[3, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.50samples[3, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.50samples[3, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.50samples[3, ]), amount = 0.002),
        lwd =1.5, cex=0.75, col = "black", pch =8)
 
-points(jitter(as.numeric(dv.FDR.d1_new.50samples[1, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.d1_new.50samples[1, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.50samples[1, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.50samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
@@ -488,31 +488,31 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
        pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
        cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
        col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj=0, "(a)")
+title(adj = 0, "(a)")
 
 
 ### Jitter Plots
 ### 2*100 samples
-plot(jitter(as.numeric(dv.FDR.d1_new.100samples[4, ]), amount = 0.002),
-     jitter(as.numeric(dv.type2.d1_new.100samples[4, ]), amount = 0.002),
+plot(jitter(as.numeric(dv.FDR.20w.100samples[4, ]), amount = 0.002),
+     jitter(as.numeric(dv.type2.20w.100samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1, col = "#1b9e77", pch = 43,
-     xlim = c(0, 0.25), ylim = c(0, 0.45),
+     xlim = c(0, 0.125), ylim = c(0, 0.25),
      xlab = "FDR", ylab = "Type II Error")
 
-points(jitter(as.numeric(dv.FDR.d1_new.100samples[5, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.100samples[5, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.100samples[5, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.100samples[5, ]), amount = 0.002),
        lwd =1.5, cex=1, col = "#7570b3", pch =15)
 
-points(jitter(as.numeric(dv.FDR.d1_new.100samples[2, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.100samples[2, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.100samples[2, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.100samples[2, ]), amount = 0.002),
        col = "#1b9e77", lwd =5.5, cex=1, pch = 95)
 
-points(jitter(as.numeric(dv.FDR.d1_new.100samples[3, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.100samples[3, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.100samples[3, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.100samples[3, ]), amount = 0.002),
        lwd =1.5, cex=0.75, col = "black", pch =8)
 
-points(jitter(as.numeric(dv.FDR.d1_new.100samples[1, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.d1_new.100samples[1, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.100samples[1, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.100samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
@@ -520,31 +520,31 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
        pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
        cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
        col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj=0, "(b)")
+title(adj = 0, "(b)")
 
 
 ### Jitter Plots
 ### 2*125 samples
-plot(jitter(as.numeric(dv.FDR.d1_new.125samples[4, ]), amount = 0.002),
-     jitter(as.numeric(dv.type2.d1_new.125samples[4, ]), amount = 0.002),
+plot(jitter(as.numeric(dv.FDR.20w.125samples[4, ]), amount = 0.002),
+     jitter(as.numeric(dv.type2.20w.125samples[4, ]), amount = 0.002),
      lwd = 5.5, cex = 1, col = "#1b9e77", pch = 43,
-     xlim = c(0, 0.25), ylim = c(0, 0.35),
+     xlim = c(0, 0.16), ylim = c(0, 0.175),
      xlab = "FDR", ylab = "Type II Error")
 
-points(jitter(as.numeric(dv.FDR.d1_new.125samples[5, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.125samples[5, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.125samples[5, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.125samples[5, ]), amount = 0.002),
        lwd =1, cex=1, col = "#7570b3", pch =15)
-      
-points(jitter(as.numeric(dv.FDR.d1_new.125samples[2, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.125samples[2, ]), amount = 0.002),
+
+points(jitter(as.numeric(dv.FDR.20w.125samples[2, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.125samples[2, ]), amount = 0.002),
        col = "#1b9e77", lwd =1.5, cex=1, pch = 95)
 
-points(jitter(as.numeric(dv.FDR.d1_new.125samples[3, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.125samples[3, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.125samples[3, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.125samples[3, ]), amount = 0.002),
        lwd =1.5, cex=0.75, col = "black", pch =8)
 
-points(jitter(as.numeric(dv.FDR.d1_new.125samples[1, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.d1_new.125samples[1, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.125samples[1, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.125samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
@@ -552,31 +552,31 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
        pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
        cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
        col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj=0, "(c)")
+title(adj = 0, "(c)")
 
 
 ### Jitter Plots
 ### 2*150 samples
-plot(jitter(as.numeric(dv.FDR.d1_new.150samples[4, ]), amount = 0.002),
-     jitter(as.numeric(dv.type2.d1_new.150samples[4, ]), amount = 0.002),
+plot(jitter(as.numeric(dv.FDR.20w.150samples[4, ]), amount = 0.002),
+     jitter(as.numeric(dv.type2.20w.150samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1,  col = "#1b9e77", pch = 43,
-     xlim = c(0, 0.26), ylim = c(0, 0.26),
+     xlim = c(0, 0.125), ylim = c(0, 0.125),
      xlab = "FDR", ylab = "Type II Error")
 
-points(jitter(as.numeric(dv.FDR.d1_new.150samples[5, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.150samples[5, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.150samples[5, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.150samples[5, ]), amount = 0.002),
        lwd =1.5, cex=1, col = "#7570b3", pch =15)
-
-points(jitter(as.numeric(dv.FDR.d1_new.150samples[2, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.150samples[2, ]), amount = 0.002),
+       
+points(jitter(as.numeric(dv.FDR.20w.150samples[2, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.150samples[2, ]), amount = 0.002),
        col = "#1b9e77", lwd =1.5, cex=1, pch = 95)
 
-points(jitter(as.numeric(dv.FDR.d1_new.150samples[3, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.150samples[3, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.150samples[3, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.150samples[3, ]), amount = 0.002),
        lwd =1.5, cex=0.75, col = "black", pch =8)
 
-points(jitter(as.numeric(dv.FDR.d1_new.150samples[1, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.d1_new.150samples[1, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.150samples[1, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.150samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
@@ -584,71 +584,71 @@ legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
        pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
        cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
        col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj=0, "(d)")
+title(adj = 0, "(d)")
 
 
 ### Jitter Plots
 ### 2*200 samples
-plot(jitter(as.numeric(dv.FDR.d1_new.200samples[4, ]), amount = 0.002),
-     jitter(as.numeric(dv.type2.d1_new.200samples[4, ]), amount = 0.002),
+plot(jitter(as.numeric(dv.FDR.20w.200samples[4, ]), amount = 0.002),
+     jitter(as.numeric(dv.type2.20w.200samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1, col = "#1b9e77", pch = 43,
-     xlim = c(0, 0.22), ylim = c(0, 0.22),
+     xlim = c(0, 0.115), ylim = c(0, 0.115),
      xlab = "FDR", ylab = "Type II Error")
 
-points(jitter(as.numeric(dv.FDR.d1_new.200samples[5, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.200samples[5, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.200samples[5, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.200samples[5, ]), amount = 0.002),
        lwd =1.5, cex=1, col = "#7570b3", pch =15)
 
-points(jitter(as.numeric(dv.FDR.d1_new.200samples[2, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.200samples[2, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.200samples[2, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.200samples[2, ]), amount = 0.002),
        col = "#1b9e77", lwd =1.5, cex=1, pch = 95)
 
-points(jitter(as.numeric(dv.FDR.d1_new.200samples[3, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.200samples[3, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.200samples[3, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.200samples[3, ]), amount = 0.002),
        lwd =1.5, cex=0.75, col = "black", pch =8)
 
-points(jitter(as.numeric(dv.FDR.d1_new.200samples[1, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.d1_new.200samples[1, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.200samples[1, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.200samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
-legend("topleft", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
+legend("topright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
        pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
        cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
        col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj=0, "(e)")
+title(adj = 0, "(e)")
 
 
 ### Jitter Plots
 ### 2*250 samples
-plot(jitter(as.numeric(dv.FDR.d1_new.250samples[4, ]), amount = 0.002),
-     jitter(as.numeric(dv.type2.d1_new.250samples[4, ]), amount = 0.002),
+plot(jitter(as.numeric(dv.FDR.20w.250samples[4, ]), amount = 0.002),
+     jitter(as.numeric(dv.type2.20w.250samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1, col = "#1b9e77", pch = 43,
-     xlim = c(0, 0.24), ylim = c(0, 0.24),
+     xlim = c(0, 0.1), ylim = c(0, 0.1),
      xlab = "FDR", ylab = "Type II Error")
 
-points(jitter(as.numeric(dv.FDR.d1_new.250samples[5, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.250samples[5, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.250samples[5, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.250samples[5, ]), amount = 0.002),
        lwd =1.5, cex=1, col = "#7570b3", pch =15)
 
-points(jitter(as.numeric(dv.FDR.d1_new.250samples[2, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.250samples[2, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.250samples[2, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.250samples[2, ]), amount = 0.002),
        col = "#1b9e77", lwd =1.5, cex=1, pch = 95)
 
-points(jitter(as.numeric(dv.FDR.d1_new.250samples[3, ]), amount = 0.002),
-       jitter(as.numeric( dv.type2.d1_new.250samples[3, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.250samples[3, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.250samples[3, ]), amount = 0.002),
        lwd =1.5, cex=0.75, col = "black", pch =8)
 
-points(jitter(as.numeric(dv.FDR.d1_new.250samples[1, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.d1_new.250samples[1, ]), amount = 0.002),
+points(jitter(as.numeric(dv.FDR.20w.250samples[1, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.250samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
-legend("topleft", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
+legend("topright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
        pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
        cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
        col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj=0, "(f)")
+title(adj = 0, "(f)")
 
                      
                      
