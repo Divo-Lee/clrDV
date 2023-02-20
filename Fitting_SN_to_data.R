@@ -260,8 +260,7 @@ title(adj=0, "(a)")
  # MLE
 clr.SN.fit(clr_simu.1[1, ])
 
- # we can check any other genes in simulated data,
- # almost all CLR-transformed simulated reads fit skew-normal model well
+ # Additional examples
 for (i in 2:100) {
   fit_sn <- selm(clr_simu.1[i, ] ~ 1, family="SN") 
   plot.sn(fit_sn, which=2, 
@@ -304,8 +303,7 @@ title(adj=0, "(b)")
 clr.SN.fit(clr_simu.2[1, ])
 
                                                        
- # we can check any other genes in simulated data,
- # almost all CLR-transformed simulated reads fit skew-normal model well                                                      
+ # Additional examples                                                      
 for (i in 2:100) {
   fit_sn2 <- selm(clr_simu.2[i, ] ~ 1, family="SN") 
   plot.sn(fit_sn2, which=2, 
