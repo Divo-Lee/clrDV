@@ -103,6 +103,7 @@ clr.SN.fit <- function(data){
       }
     }
     row.names(esti._mat) <- row.names(data)
+    esti._est <- as.data.frame(esti._mat)
     return(esti._mat)
   }
 }
