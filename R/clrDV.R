@@ -121,5 +121,6 @@ clrDV <- function(data = NULL,
   colnames(s.d._test)[5] <- "adj_pval"
   result <- cbind(s.d._test, s.d._Matrix_group1, s.d._Matrix_group2)
   row.names(result) <- row.names(data)
+  result <- as.data.frame(result)
   return(result)
 }
