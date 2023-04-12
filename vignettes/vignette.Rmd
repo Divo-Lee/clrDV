@@ -105,7 +105,7 @@ clr.SN.fit(clrCounts2[1, 1:200])
 ```
 
 
-The Kolmogorov-Smirnov (KS) test can be used to compare the distribution of CLR-transformed counts of a particular gene with a reference distribution, which is a skew-normal distribution in *clrDV*. For illustration, we apply the KS test to the control group of  `clrCounts2` to evaluate whether the distribution of CLR-transformed counts in this group and the skew-normal distribution are statistically similar. The distribution of $p$-values obtained form KS-tests conducted on all 1000 genes in the control group indicates that for 995 out of 1000 genes ($99.5\%$), the skew-normal model fits the CLR-transformed count data well.
+The Kolmogorov-Smirnov (KS) test can be used to compare the distribution of CLR-transformed counts of a particular gene with a skew-normal distribution. For illustration, we apply the KS test to the control group of  `clrCounts2` to evaluate whether the distribution of CLR-transformed counts in this group and the skew-normal distribution are statistically similar. The distribution of $p$-values obtained form KS-tests conducted on all 1000 genes in the control group indicates that for 995 out of 1000 genes ($99.5\%$), the skew-normal model fits the CLR-transformed count data well.
 
 ```{r,  message=F, warning=F}
 library(sn) # R package for skew-normal distribution and related distributions
