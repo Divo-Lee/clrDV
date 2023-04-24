@@ -1,9 +1,9 @@
 ###################################################
 #clrDV: A differential variability test for
 #RNA-Seq data based on the skew-normal distribution
-#Author: Hongxiang Li
+#Authors: Hongxiang Li and Tsung Fei Khang
 #Email: chelsea.divo@hotmail.com
-#Last update: 21 February 2023
+#Last update: 25 April 2023
 #R Codes for comparison of methods
 #Part 3: simulation study using the Kelmer dataset 
 ###################################################
@@ -132,13 +132,13 @@ DV.test.comparison <- function(data = NULL,
   params <- get_params(data)
   n = N.samples # Number of samples for each group
 
-  names <- c("clrDV", "MDSeq", "diffVar", "GAMLSS_BH", "GAMLSS_BY")
+  names <- c("clrDV", "MDSeq", "diffVar",
+             "GAMLSS_BH", "GAMLSS_BY", "DiffDist")
   FDR <- matrix(NA, nrow = length(names), ncol = N.simulations)
   Type_II_error <- matrix(NA, nrow = length(names), ncol = N.simulations)
   Time <- matrix(NA, nrow = length(names), ncol = N.simulations)
-  row.names(FDR) <- names
-  row.names(Type_II_error)<- names
-  row.names(Time)<- names
+  row.names(FDR) <- row.names(Type_II_error)<-  row.names(Time)<- names
+  colnames(FDR) <- colnames(Type_II_error) <- colnames(Time) <- paste("simu", 1:N.simulations, sep = "")
 
   ## Methods comparison
   i <- 1
@@ -149,10 +149,10 @@ DV.test.comparison <- function(data = NULL,
     s.fc <- c(d.size, rep(1, d-N.dv))
 
     dv_data <- create_dv_counts(params$mu, params$fit,
-                               N.genes = N.G,
-                               N.samples = n,
-                               size.fc = s.fc,
-                               seed = seeds2[i])
+                                N.genes = N.G,
+                                N.samples = n,
+                                size.fc = s.fc,
+                                seed = seeds2[i])
     row.names(dv_data) <- paste('gene', 1:N.genes, sep='')
     dv_gene <- row.names(dv_data)[1:N.dv]
     data2 <- dv_data
@@ -171,6 +171,8 @@ DV.test.comparison <- function(data = NULL,
     ######################
     ### DV Test Comparison
     group2 = rep(c(0,1), each = n)
+    group.HM <- rep(c(1,2), each = n) # for DiffDist
+
 
     ### clrDV
     t1 <- proc.time()
@@ -178,10 +180,10 @@ DV.test.comparison <- function(data = NULL,
     s.d._test <- clrDV(clr.counts2, group = group2)
     s.d._test <- na.omit(s.d._test)
 
-    dv_table <- s.d._test[s.d._test[, 5] < 0.05, ]
+    dv_table <- s.d._test[s.d._test$adj_pval < 0.05, ]
     dv_genes_clrDV <- row.names(dv_table) # DV genes called
 
-    FDR_clrDV <- (sum(s.d._test[,5] < 0.05) -  length(intersect(dv_genes_clrDV, dv_gene)))/sum(s.d._test[, 5] < 0.05)
+    FDR_clrDV <- (sum(s.d._test$adj_pval < 0.05) -  length(intersect(dv_genes_clrDV, dv_gene)))/sum(s.d._test$adj_pval < 0.05)
     type_II_error_clrDV <- (N.dv_filter - length(intersect(dv_genes_clrDV, dv_gene)))/N.dv_filter
 
     FDR[1, i] <- FDR_clrDV
@@ -197,7 +199,7 @@ DV.test.comparison <- function(data = NULL,
     sf2 <- els2 / exp(mean(log(libsizes2)))
 
     contrasts2 <- get.model.matrix(as.factor(group2))
-    fit.MDSeq.dv <- MDSeq(norm.data2, offsets = sf2,
+    fit.MDSeq.dv <- MDSeq(data2, offsets = sf2,
                           contrast = contrasts2)
     res.MDSeq.dv <- extract.ZIMD(fit.MDSeq.dv,
                                  get='contrast',
@@ -309,6 +311,46 @@ DV.test.comparison <- function(data = NULL,
     Type_II_error[5, i] <- type_II_error_gamlss
     Time[5, i] <- as.numeric(proc.time() - t6)[3] + as.numeric(t5 - t4)[3]
 
+
+    ### DiffDist (HM model)
+    t7 <- proc.time()
+    libsizes2 <- colSums(data2)
+    nf2 <- calcNormFactors(data2, method="TMM")
+    els2 <- nf2 * libsizes2
+    sf2 <- els2 / exp(mean(log(libsizes2)))
+    norm.data2 <- t(t(data2) / sf2)
+    row.names(norm.data2) <- row.names(data2)
+
+    # sub-group, 500 genes: 50 DV genes and 450 non-DV genes,
+    # randomly selected from the 200 DV genes and the 1800 non-DV genes, respectively
+    set.seed((seeds1[i]+10))
+    sub_dv <- sample(1:N.dv_filter, (0.25*prob.dv*N.genes), replace = F)
+    set.seed((seeds2[i]+20))
+    sub_non_dv <- sample((N.dv_filter+1):(N.genes_dv_filter),
+                         (0.25*(1 - prob.dv)*N.genes), replace = F)
+    sub_norm.data2 <-  norm.data2[c(sub_dv, sub_non_dv), ]
+    sub_dv_gene <- row.names(norm.data2)[sub_dv]
+
+    # DV test
+    HM <- ln_hmm_adapt_3_chains(counts = sub_norm.data2,
+                                groups = group.HM)
+
+    # Differential dispersion:
+    disp_diff_HM <- unname(log(as.matrix(HM$disps1)) - log(as.matrix(HM$disps2)))
+    # posterior samples of between-group differences in dispersions
+    p_disp_HM <- apply(disp_diff_HM, 2, hpd.pval) # tail probabilities of no differences in dispersions
+    p_adjust <- p.adjust(p_disp_HM, "fdr")
+
+    dv_genes_HM <- row.names(sub_norm.data2)[which(p_adjust < 0.05)] # DV genes called
+
+    FDR_HM <- (length(dv_genes_HM) -  length(intersect(dv_genes_HM, sub_dv_gene)))/length(dv_genes_HM)
+    type_II_error_HM <- (0.25*prob.dv*N.genes - length(intersect(dv_genes_HM, sub_dv_gene)))/(0.25*prob.dv*N.genes)
+
+    FDR[6, i] <- FDR_HM
+    Type_II_error[6, i] <-type_II_error_HM
+    Time[6, i] <- as.numeric(proc.time() - t7)[3]
+
+
     i <- i + 1
   }
   return(list("FDR" =  FDR, "Type_II_error" = Type_II_error, "Time" = Time))
@@ -317,16 +359,17 @@ DV.test.comparison <- function(data = NULL,
 
 
 ### Comparisons of Methods
-### Be patient, this will take some time 
+### Be patient, this will take some time
 ## Comparison One, 2*50 samples
 DV_test1 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
-                                N.samples = 50, prob.dv = 0.1,
-                                N.simulations = 30, seed = 7)
+                               N.samples = 50, prob.dv = 0.1,
+                               N.simulations = 30, seed = 7)
 DV_test1$FDR; DV_test1$Type_II_error; DV_test1$Time
 
 write.csv(round(DV_test1$FDR, 4), "DV_FDR_20week_50.csv", quote=FALSE, row.names=T)
 write.csv(round(DV_test1$Type_II_error, 4), "DV_Type_II_error_20week_50.csv", quote=FALSE, row.names=T)
 write.csv(round(DV_test1$Time, 2), "DV_Time_20week_50.csv", quote=FALSE, row.names=T)
+
 
 
 ## Comparison Two, 2*100 samples
@@ -340,48 +383,28 @@ write.csv(round( DV_test2$Type_II_error, 4), "DV_Type_II_error_20week_100.csv", 
 write.csv(round(DV_test2$Time, 2), "DV_Time_20week_100.csv", quote=FALSE, row.names=T)
 
 
-## Comparison Three, 2*125 samples
+
+## Comparison Three, 2*150 samples
 DV_test3 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
-                               N.samples = 125, prob.dv = 0.1,
-                               N.simulations = 30, seed = 9)
-DV_test3$FDR; DV_test3$Type_II_error; DV_test3$Time
-
-write.csv(round(DV_test3$FDR, 4), "DV_FDR_20week_125.csv", quote=FALSE, row.names=T)
-write.csv(round( DV_test3$Type_II_error, 4), "DV_Type_II_error_20week_125.csv", quote=FALSE, row.names=T)
-write.csv(round(DV_test3$Time, 2), "DV_Time_20week_125.csv", quote=FALSE, row.names=T)
-
-
-## Comparison Four, 2*150 samples
-DV_test4 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                N.samples = 150, prob.dv = 0.1,
                                N.simulations = 30, seed = 10)
-DV_test4$FDR; DV_test4$Type_II_error; DV_test4$Time
+DV_test3$FDR; DV_test3$Type_II_error; DV_test3$Time
 
-write.csv(round(DV_test4$FDR, 4), "DV_FDR_20week_150.csv", quote=FALSE, row.names=T)
-write.csv(round( DV_test4$Type_II_error, 4), "DV_Type_II_error_20week_150.csv", quote=FALSE, row.names=T)
-write.csv(round(DV_test4$Time, 2), "DV_Time_20week_150.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test3$FDR, 4), "DV_FDR_20week_150.csv", quote=FALSE, row.names=T)
+write.csv(round( DV_test3$Type_II_error, 4), "DV_Type_II_error_20week_150.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test3$Time, 2), "DV_Time_20week_150.csv", quote=FALSE, row.names=T)
 
 
-## Comparison Five, 2*200 samples
-DV_test5 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
+
+## Comparison Four, 2*200 samples
+DV_test4 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
                                N.samples = 200, prob.dv = 0.1,
                                N.simulations = 30, seed = 11)
-DV_test5$FDR; DV_test5$Type_II_error; DV_test5$Time
+DV_test4$FDR; DV_test4$Type_II_error; DV_test4$Time
 
-write.csv(round(DV_test5$FDR, 4), "DV_FDR_20week_200.csv", quote=FALSE, row.names=T)
-write.csv(round( DV_test5$Type_II_error, 4), "DV_Type_II_error_20week_200.csv", quote=FALSE, row.names=T)
-write.csv(round(DV_test5$Time, 2), "DV_Time_20week_200.csv", quote=FALSE, row.names=T)
-
-
-## Comparison Six, 2*250 samples
-DV_test6 <- DV.test.comparison(data = data_20weeks, N.genes = 2000,
-                               N.samples = 250, prob.dv = 0.1,
-                               N.simulations = 30, seed = 12)
-DV_test6$FDR; DV_test6$Type_II_error; DV_test6$Time
-
-write.csv(round(DV_test6$FDR, 4), "DV_FDR_20week_250.csv", quote=FALSE, row.names=T)
-write.csv(round( DV_test6$Type_II_error, 4), "DV_Type_II_error_20week_250.csv", quote=FALSE, row.names=T)
-write.csv(round(DV_test6$Time, 2), "DV_Time_20week_250.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test4$FDR, 4), "DV_FDR_20week_200.csv", quote=FALSE, row.names=T)
+write.csv(round( DV_test4$Type_II_error, 4), "DV_Type_II_error_20week_200.csv", quote=FALSE, row.names=T)
+write.csv(round(DV_test4$Time, 2), "DV_Time_20week_200.csv", quote=FALSE, row.names=T)
 
 
 
@@ -391,81 +414,70 @@ write.csv(round(DV_test6$Time, 2), "DV_Time_20week_250.csv", quote=FALSE, row.na
 ########################
 dv.FDR.20w.50samples <- read.csv('DV_FDR_20week_50.csv', row.names = 1)
 dv.FDR.20w.100samples <- read.csv('DV_FDR_20week_100.csv', row.names = 1)
-dv.FDR.20w.125samples <- read.csv('DV_FDR_20week_125.csv', row.names = 1)
 dv.FDR.20w.150samples <- read.csv('DV_FDR_20week_150.csv', row.names = 1)
 dv.FDR.20w.200samples <- read.csv('DV_FDR_20week_200.csv', row.names = 1)
-dv.FDR.20w.250samples <- read.csv('DV_FDR_20week_250.csv', row.names = 1)
 
 
 dv.type2.20w.50samples <- read.csv('DV_Type_II_error_20week_50.csv', row.names = 1)
 dv.type2.20w.100samples <- read.csv('DV_Type_II_error_20week_100.csv', row.names = 1)
-dv.type2.20w.125samples <- read.csv('DV_Type_II_error_20week_125.csv', row.names = 1)
 dv.type2.20w.150samples <- read.csv('DV_Type_II_error_20week_150.csv', row.names = 1)
 dv.type2.20w.200samples <- read.csv('DV_Type_II_error_20week_200.csv', row.names = 1)
-dv.type2.20w.250samples <- read.csv('DV_Type_II_error_20week_250.csv', row.names = 1)
 
 
 # FDR and average type II error of diffVar
 c(rowMeans(dv.FDR.20w.50samples[3, ]),
   rowMeans(dv.FDR.20w.100samples[3, ]),
-  rowMeans(dv.FDR.20w.125samples[3, ]),
   rowMeans(dv.FDR.20w.150samples[3, ]),
-  rowMeans(dv.FDR.20w.200samples[3, ]),
-  rowMeans(dv.FDR.20w.250samples[3, ]))
+  rowMeans(dv.FDR.20w.200samples[3, ]))
 
 c(rowMeans(dv.type2.20w.50samples[3, ]),
   rowMeans(dv.type2.20w.100samples[3, ]),
-  rowMeans(dv.type2.20w.125samples[3, ]),
   rowMeans(dv.type2.20w.150samples[3, ]),
-  rowMeans(dv.type2.20w.200samples[3, ]),
-  rowMeans(dv.type2.20w.250samples[3, ]))
+  rowMeans(dv.type2.20w.200samples[3, ]))
 
 
 ### Computing Times, in seconds
 dv.time.20w.50samples <- read.csv('DV_Time_20week_50.csv', row.names = 1)
 dv.time.20w.100samples <- read.csv('DV_Time_20week_100.csv', row.names = 1)
-dv.time.20w.125samples <- read.csv('DV_Time_20week_125.csv', row.names = 1)
 dv.time.20w.150samples <- read.csv('DV_Time_20week_150.csv', row.names = 1)
 dv.time.20w.200samples <- read.csv('DV_Time_20week_200.csv', row.names = 1)
-dv.time.20w.250samples <- read.csv('DV_Time_20week_250.csv', row.names = 1)
 
- # mean computing times, in seconds
-Time_dv_20w <- matrix(NA, nrow = 6, ncol = 5)
+
+# mean computing times, in seconds (Table S2)
+Time_dv_20w <- matrix(NA, nrow = 4, ncol = 6)
 Time_dv_20w <- rbind(rowMeans(dv.time.20w.50samples),
                      rowMeans(dv.time.20w.100samples),
-                     rowMeans(dv.time.20w.125samples),
                      rowMeans(dv.time.20w.150samples),
-                     rowMeans(dv.time.20w.200samples),
-                     rowMeans(dv.time.20w.250samples))
+                     rowMeans(dv.time.20w.200samples))
 Time_dv_20w[ , 3] <- round(Time_dv_20w[, 3], 1)
-Time_dv_20w[, c(1,2,4,5)] <- round(Time_dv_20w[, c(1,2,4,5)])
-row.names(Time_dv_20w) <- c("n=50", "n=100", "n=125", "n=150", "n=200", "n=250")
-colnames(Time_dv_20w) <- c("clrDV","MDSeq","diffVar","GAMLSS-BH", "GAMLSS-BY")
-Time_dv_20w
+Time_dv_20w[, c(1,2,4,5,6)] <- round(Time_dv_20w[, c(1,2,4,5,6)])
+row.names(Time_dv_20w) <- c("n=50", "n=100", "n=150", "n=200")
+colnames(Time_dv_20w) <- c("clrDV","MDSeq","diffVar","GAMLSS-BH", "GAMLSS-BY", "DiffDist")
+Time_dv_20w 
 
- # standard deviation of mean time
-Time_sd_dv_20w <- matrix(NA, nrow = 6, ncol = 5)
+# standard deviation of mean time (Table S2)
+Time_sd_dv_20w <- matrix(NA, nrow = 4, ncol = 6)
 Time_sd_dv_20w <- rbind(apply(dv.time.20w.50samples, 1, sd),
                         apply(dv.time.20w.100samples, 1, sd),
-                        apply(dv.time.20w.125samples, 1, sd),
                         apply(dv.time.20w.150samples, 1, sd),
-                        apply(dv.time.20w.200samples, 1, sd),
-                        apply(dv.time.20w.250samples, 1, sd))
-row.names(Time_sd_dv_20w) <- c("n=50", "n=100", "n=125", "n=150", "n=200", "n=250")
-colnames(Time_sd_dv_20w) <- c("clrDV","MDSeq","diffVar","GAMLSS-BH", "GAMLSS-BY")
-Time_sd_dv_20w[, c(1,2,4,5)] <- round(Time_sd_dv_20w[, c(1,2,4,5)])
+                        apply(dv.time.20w.200samples, 1, sd))
+row.names(Time_sd_dv_20w) <- c("n=50", "n=100", "n=150", "n=200")
+colnames(Time_sd_dv_20w) <- c("clrDV","MDSeq","diffVar","GAMLSS-BH", "GAMLSS-BY", "DiffDist")
+Time_sd_dv_20w[, c(1,2,4,5,6)] <- round(Time_sd_dv_20w[, c(1,2,4,5,6)])
 Time_sd_dv_20w[, 3] <- round(Time_sd_dv_20w[,3], 2)
 Time_sd_dv_20w
 
 
 
-### Jitter Plots
+
+### Jitter Plots (Fig. 3)
 ### 2*50 samples
 plot(jitter(as.numeric(dv.FDR.20w.50samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.50samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1, col = "#1b9e77", pch = 43,
      xlim = c(0, 0.15), ylim = c(0, 0.8),
-     xlab = "FDR", ylab = "Type II Error")
+     xlab = "FDR", ylab = "Type II Error", cex.lab = 1.15)
+
 
 points(jitter(as.numeric(dv.FDR.20w.50samples[5, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.50samples[5, ]), amount = 0.002),
@@ -483,11 +495,16 @@ points(jitter(as.numeric(dv.FDR.20w.50samples[1, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.50samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
+points(jitter(as.numeric(dv.FDR.20w.50samples[6, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.50samples[6, ]), amount = 0.002),
+       lwd = 1.5, cex = 1, col = "black", pch = 92)
+
+
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
-legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
-       pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
-       cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
-       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
+legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY", "DiffDist"),
+       pch = c(1, 95, 8, 43, 15, 92), pt.cex = c(1.25,1,1,1,1,1),
+       cex= 1.25, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5, 1.5),
+       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3", "black"))
 title(adj = 0, "(a)")
 
 
@@ -497,7 +514,7 @@ plot(jitter(as.numeric(dv.FDR.20w.100samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.100samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1, col = "#1b9e77", pch = 43,
      xlim = c(0, 0.125), ylim = c(0, 0.25),
-     xlab = "FDR", ylab = "Type II Error")
+     xlab = "FDR", ylab = "Type II Error", cex.lab = 1.15)
 
 points(jitter(as.numeric(dv.FDR.20w.100samples[5, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.100samples[5, ]), amount = 0.002),
@@ -515,44 +532,18 @@ points(jitter(as.numeric(dv.FDR.20w.100samples[1, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.100samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
+points(jitter(as.numeric(dv.FDR.20w.100samples[6, ]), amount = 0.002),
+     jitter(as.numeric(dv.type2.20w.100samples[6, ]), amount = 0.002),
+     lwd = 1.5, cex = 1, col = "black", pch = 92)
+
+
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
-legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
-       pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
-       cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
-       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
+#legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
+#       pch = c(1, 95, 8 , 43, 15, 92), pt.cex = c(1.25,1,1,1,1,1),
+#       cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5, 1.5),
+#       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3", "black"))
 title(adj = 0, "(b)")
 
-
-### Jitter Plots
-### 2*125 samples
-plot(jitter(as.numeric(dv.FDR.20w.125samples[4, ]), amount = 0.002),
-     jitter(as.numeric(dv.type2.20w.125samples[4, ]), amount = 0.002),
-     lwd = 5.5, cex = 1, col = "#1b9e77", pch = 43,
-     xlim = c(0, 0.16), ylim = c(0, 0.175),
-     xlab = "FDR", ylab = "Type II Error")
-
-points(jitter(as.numeric(dv.FDR.20w.125samples[5, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.20w.125samples[5, ]), amount = 0.002),
-       lwd =1, cex=1, col = "#7570b3", pch =15)
-
-points(jitter(as.numeric(dv.FDR.20w.125samples[2, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.20w.125samples[2, ]), amount = 0.002),
-       col = "#1b9e77", lwd =1.5, cex=1, pch = 95)
-
-points(jitter(as.numeric(dv.FDR.20w.125samples[3, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.20w.125samples[3, ]), amount = 0.002),
-       lwd =1.5, cex=0.75, col = "black", pch =8)
-
-points(jitter(as.numeric(dv.FDR.20w.125samples[1, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.20w.125samples[1, ]), amount = 0.002),
-       lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
-
-abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
-legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
-       pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
-       cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
-       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj = 0, "(c)")
 
 
 ### Jitter Plots
@@ -561,12 +552,12 @@ plot(jitter(as.numeric(dv.FDR.20w.150samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.150samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1,  col = "#1b9e77", pch = 43,
      xlim = c(0, 0.125), ylim = c(0, 0.125),
-     xlab = "FDR", ylab = "Type II Error")
+     xlab = "FDR", ylab = "Type II Error", cex.lab = 1.15)
 
 points(jitter(as.numeric(dv.FDR.20w.150samples[5, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.150samples[5, ]), amount = 0.002),
        lwd =1.5, cex=1, col = "#7570b3", pch =15)
-       
+
 points(jitter(as.numeric(dv.FDR.20w.150samples[2, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.150samples[2, ]), amount = 0.002),
        col = "#1b9e77", lwd =1.5, cex=1, pch = 95)
@@ -579,12 +570,17 @@ points(jitter(as.numeric(dv.FDR.20w.150samples[1, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.150samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
+points(jitter(as.numeric(dv.FDR.20w.150samples[6, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.150samples[6, ]), amount = 0.002),
+       lwd = 1.5, cex = 1, col = "black", pch = 92)
+
+
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
-legend("bottomright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
-       pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
-       cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
-       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj = 0, "(d)")
+#legend("topright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY", "DiffDist"),
+#       pch = c(1, 95, 8 , 43, 15, 92), pt.cex = c(1.25,1,1,1,1,1),
+#       cex= 1.1, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5, 1.5),
+#       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3", "black"))
+title(adj = 0, "(c)")
 
 
 ### Jitter Plots
@@ -593,7 +589,7 @@ plot(jitter(as.numeric(dv.FDR.20w.200samples[4, ]), amount = 0.002),
      jitter(as.numeric(dv.type2.20w.200samples[4, ]), amount = 0.002),
      lwd = 1.5, cex = 1, col = "#1b9e77", pch = 43,
      xlim = c(0, 0.115), ylim = c(0, 0.115),
-     xlab = "FDR", ylab = "Type II Error")
+     xlab = "FDR", ylab = "Type II Error", cex.lab = 1.15)
 
 points(jitter(as.numeric(dv.FDR.20w.200samples[5, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.200samples[5, ]), amount = 0.002),
@@ -611,45 +607,16 @@ points(jitter(as.numeric(dv.FDR.20w.200samples[1, ]), amount = 0.002),
        jitter(as.numeric(dv.type2.20w.200samples[1, ]), amount = 0.002),
        lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
 
-abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
-legend("topright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
-       pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
-       cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
-       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj = 0, "(e)")
-
-
-### Jitter Plots
-### 2*250 samples
-plot(jitter(as.numeric(dv.FDR.20w.250samples[4, ]), amount = 0.002),
-     jitter(as.numeric(dv.type2.20w.250samples[4, ]), amount = 0.002),
-     lwd = 1.5, cex = 1, col = "#1b9e77", pch = 43,
-     xlim = c(0, 0.1), ylim = c(0, 0.1),
-     xlab = "FDR", ylab = "Type II Error")
-
-points(jitter(as.numeric(dv.FDR.20w.250samples[5, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.20w.250samples[5, ]), amount = 0.002),
-       lwd =1.5, cex=1, col = "#7570b3", pch =15)
-
-points(jitter(as.numeric(dv.FDR.20w.250samples[2, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.20w.250samples[2, ]), amount = 0.002),
-       col = "#1b9e77", lwd =1.5, cex=1, pch = 95)
-
-points(jitter(as.numeric(dv.FDR.20w.250samples[3, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.20w.250samples[3, ]), amount = 0.002),
-       lwd =1.5, cex=0.75, col = "black", pch =8)
-
-points(jitter(as.numeric(dv.FDR.20w.250samples[1, ]), amount = 0.002),
-       jitter(as.numeric(dv.type2.20w.250samples[1, ]), amount = 0.002),
-       lwd =1.5, cex=1.25, pch = 1, col = "#d95f02")
+points(jitter(as.numeric(dv.FDR.20w.200samples[6, ]), amount = 0.002),
+       jitter(as.numeric(dv.type2.20w.200samples[6, ]), amount = 0.002),
+       lwd = 1.5, cex = 1, col = "black", pch = 92)
 
 abline(h = 0.05, lty = 2, lwd = 1); abline(v = 0.05, lty = 2, lwd = 1)
-legend("topright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY"),
-       pch = c(1, 95, 8 , 43, 15), pt.cex = c(1.25,1,1,1,1),
-       cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5),
-       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3"))
-title(adj = 0, "(f)")
+#legend("topright", c("clrDV", "MDSeq", "diffVar", "GAMLSS-BH", "GAMLSS-BY", "DiffDist"),
+#       pch = c(1, 95, 8 , 43, 15, 92), pt.cex = c(1.25,1,1,1,1,1),
+#       cex= 0.7, pt.lwd = c(1.5, 1.5, 1.5, 1.5, 1.5, 1.5),
+#       col = c("#d95f02", "#1b9e77", "black", "#1b9e77", "#7570b3", "black"))
+title(adj = 0, "(d)")
 
-                     
-                     
+                                         
 ###END###
