@@ -5,7 +5,7 @@
 #Email: chelsea.divo@hotmail.com
 #Latest update: 23 Feb. 2023
 #R Codes for DV test on Mayo RNA-Seq dataset
-#Part 5: control vs. PSP comparison
+#Part 7: control vs. PSP comparison
 ###################################################
 
 ## R packages downloaded
@@ -227,7 +227,7 @@ psp_clrDV_ratio_down_table <- psp_clrDV_ratio_down_table[, c("gene_symbol", "SD_
 
 
 ## Volcano plot, black and white with dashed line (q=0.05)
-# Fig. S1 (b)
+# Fig. 5 (b)
 par(mar= c(5, 4.6, 4 ,1))
 plot(log(SD_ratio,2), sqrt(neg_log10_q),
      xlim = c(-2, 2), ylim = c(0, 3.5),
@@ -241,7 +241,7 @@ title(adj=0, "(b)")
 
 ### Comparison One, GAMLSS uses BH FDR
 ## Venn Diagram (BH)
-# Fig. S2 (a)
+# Fig. 7 (a)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -264,7 +264,7 @@ grid.draw(vd)
 
 
 ## violin plots of the distribution of log2 SD ratio
-# Fig. S2 (c)
+# Fig. 7 (c)
 length(setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq))
 
 diff_clrDV1 <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq)
@@ -340,7 +340,7 @@ dim(dv_table_gamlss)
 dv_genes_gamlss <- row.names(dv_table_gamlss)
 
 ## Venn Diagram
-# Fig. S2 (b)
+# Fig. 7 (b)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -363,7 +363,7 @@ grid.draw(vd2)
 
 
 ## violin plots of the distribution of estimated log2 SD ratio
-# Fig. S2 (d)
+# Fig. 7 (d)
 cgm_genes2 <- intersect(intersect(dv_genes_clrDV,dv_genes_MDSeq), dv_genes_gamlss)
 length(cgm_genes2)
 
