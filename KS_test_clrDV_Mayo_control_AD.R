@@ -3,7 +3,7 @@
 #RNA-Seq data based on the skew-normal distribution
 #Authors: Hongxiang Li and Tsung Fei Khang
 #Email: chelsea.divo@hotmail.com
-#Latest update: 10 April 2023
+#Latest update: 25 April 2023
 #R Codes for DV test on Mayo RNA-Seq dataset
 #Part 4: Goodness-of-fit Assessment of the skew-normal model on 
 #        the distribution of the CLR-transformed Mayo RNA-Seq
