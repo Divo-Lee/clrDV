@@ -1,11 +1,11 @@
 #######################################################
 #clrDV: A differential variability test for
 #RNA-Seq data based on the skew-normal distribution
-#Author: Hongxiang Li
+#Author: Hongxiang Li and Tsung Fei Khang
 #Email: chelsea.divo@hotmail.com
-#Latest update: 23 Feb. 2023
+#Latest update: 25 April 2023
 #R Codes for DV test on Mayo RNA-Seq dataset
-#Part 4: control vs. AD comparison
+#Part 6: control vs. AD comparison
 #######################################################
 
 ## R packages downloaded
@@ -228,7 +228,7 @@ clrDV_ratio_down_table <- clrDV_ratio_down_table[, c("gene_symbol", "SD_ratio", 
 
 #########################
 ## volcano plot for clrDV
-# Fig. 4 (a)
+# Fig. 5 (a)
 par(mar= c(5, 4.6, 4 ,1))
 plot(log(SD_ratio,2), sqrt(neg_log10_q),
      xlim = c(-2, 2), ylim = c(0, 3.5),
@@ -250,7 +250,7 @@ diff_MDSeq1 <- setdiff(setdiff(dv_genes_MDSeq, dv_genes_clrDV), dv_genes_gamlss)
 cgm_genes1 <- intersect(intersect(dv_genes_clrDV,dv_genes_MDSeq), dv_genes_gamlss)
 
 ## Venn Diagram (BH)
-# Fig. 5 (a)
+# Fig. 6 (a)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS_BH = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -272,7 +272,7 @@ vd <- venn.diagram(list(clrDV=clrDV,MDSeq=MDSeq,"GAMLSS-BH"=GAMLSS_BH),
 grid.draw(vd)
 
 
-# Fig. 5 (c)
+# Fig. 6 (c)
 vioplot(log2(s.d._test[cgm_genes1, 6]),
         log2(s.d._test[diff_clrDV1, 6]),
         log2(s.d._test[diff_gamlss1, 6]),
@@ -345,7 +345,7 @@ dv_genes_gamlss <- row.names(dv_table_gamlss)
 length(setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq))
 
 ## Venn Diagram (BY)
-# Fig. 5 (b)
+# Fig. 6 (b)
 clrDV = as.factor(dv_genes_clrDV)
 GAMLSS_BY = as.factor(dv_genes_gamlss)
 MDSeq = as.factor(dv_genes_MDSeq)
@@ -368,7 +368,7 @@ grid.draw(vd2)
 
 
 ## violin plots
-# Fig. 5 (d)
+# Fig. 6 (d)
 diff_clrDV2 <- setdiff(setdiff(dv_genes_clrDV, dv_genes_gamlss), dv_genes_MDSeq)
 diff_gamlss2 <- setdiff(setdiff(dv_genes_gamlss, dv_genes_clrDV), dv_genes_MDSeq)
 diff_MDSeq2 <- setdiff(setdiff(dv_genes_MDSeq, dv_genes_clrDV), dv_genes_gamlss)
@@ -440,7 +440,7 @@ unique_clrDV_dv_table_AD_BY <- unique_clrDV_dv_table_AD_BY[order(unique_clrDV_dv
 
 ########################################
 ## Violin plots for large-magnitude SD ratio DV genes
-## Fig. 7
+## Fig. 8
 top_dv_genes_to_plot <- c("ENSG00000142494", "ENSG00000119147",
                           "ENSG00000124107", "ENSG00000119681",
                           "ENSG00000203618", "ENSG00000141456")
