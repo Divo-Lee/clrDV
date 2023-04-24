@@ -260,13 +260,73 @@ title(adj=0, "(a)")
  # MLE
 clr.SN.fit(clr_simu.1[1, ])
 
- # Additional examples
-for (i in 2:100) {
-  fit_sn <- selm(clr_simu.1[i, ] ~ 1, family="SN") 
-  plot.sn(fit_sn, which=2, 
-          caption = NULL, 
-          main =paste('gene', i, sep=''))
-}                                               
+  # We can check any other genes in simulated data,
+ # almost all genes fit skew-normal model well
+#for (i in 2:100) {
+#  fit_sn <- selm(clr_simu.1[i, ] ~ 1, family="SN")
+#  plot.sn(fit_sn, which=2,
+#          caption = NULL,
+#          main =paste('gene', i, sep=''))
+#}
+
+
+### KS Test
+cp_to_dp <- function(mean=NULL, sd=NULL, skewness=NULL){
+  b <- sqrt(2/pi)
+
+  if(skewness >= 0){
+    r <- (2*skewness/(4-pi))^(1/3)
+  } else {
+    r <- -(2*(- skewness)/(4-pi))^(1/3)
+  }
+
+  alpha <- r/sqrt(2/pi - (1-2/pi)*r^2)
+  delta <- alpha/sqrt(1 + alpha^2)
+  omega <- sd/sqrt(1 - (b^2)*delta^2)
+  xi <- mean - b*omega*delta
+  return(c(xi, omega, alpha))
+} # map CP to DP
+
+
+##
+clrSeq_result_simu1 <- clr.SN.fit(data = clr_simu.1) 
+clrSeq_result_simu1 <- as.data.frame(clrSeq_result_simu1)
+simu1_sn_CP <- clrSeq_result_simu1[, c("mu", "sigma", "gamma")]
+
+
+simu1_sn_DP <- matrix(NA, nrow = dim(simu1_sn_CP)[1], ncol = 3)
+for (i in 1:dim(simu1_sn_CP)[1]) {
+  simu1_sn_DP[i,] <- c(cp_to_dp(simu1_sn_CP[i,1],
+                                  simu1_sn_CP[i,2],
+                                  simu1_sn_CP[i,3]))
+}
+
+colnames(simu1_sn_DP) <- c("xi1", "omega1", "alpha1")
+simu1_sn_DP <- as.data.frame(simu1_sn_DP)
+
+
+# simulation 1, KS test
+simu1_KS_test_pvalue <- vector()
+for (i in 1:dim(simu1_sn_DP)[1]) {
+  ks <- ks.test(clr_simu.1[i, ],
+                "psn",
+                xi = simu1_sn_DP$xi1[i],
+                omega = simu1_sn_DP$omega1[i],
+                alpha = simu1_sn_DP$alpha1[i])
+  simu1_KS_test_pvalue[i] <- ks$p.value
+}
+sum(simu1_KS_test_pvalue < 0.05)
+ # 365/9999 = 0.0365
+ # skew-normal fits 96.35% of the genes well
+
+ # Fig. 1 (c)
+hist(sqrt(-log10(simu1_KS_test_pvalue)),
+     freq = F, breaks = 25,
+     xlab =expression(sqrt(-log[10](p))),
+     xlim = c(0,4), ylim = c(0,2.5),
+     main = NULL, border = "grey83")
+abline(v = sqrt(-log10(0.05)), lty = 2, lwd = 1.25, col = "red")
+title(adj=0, "(c)")                              
 
 
 #######################################################
@@ -303,13 +363,54 @@ title(adj=0, "(b)")
 clr.SN.fit(clr_simu.2[1, ])
 
                                                        
- # Additional examples                                                      
-for (i in 2:100) {
-  fit_sn2 <- selm(clr_simu.2[i, ] ~ 1, family="SN") 
-  plot.sn(fit_sn2, which=2, 
-          caption = NULL, 
-          main =paste('gene', i, sep=''))
+ # we can check any other genes in simulated data,
+# almost all genes fit skew-normal model well
+#for (i in 2:100) {
+#  fit_sn2 <- selm(clr_simu.2[i, ] ~ 1, family="SN")
+#  plot.sn(fit_sn2, which=2,
+#          caption = NULL,
+#          main =paste('gene', i, sep=''))
+#}
+
+
+## KS test, simulation 2
+clrSeq_result_simu2 <- clr.SN.fit(data = clr_simu.2)
+clrSeq_result_simu2 <- as.data.frame(clrSeq_result_simu2)
+simu2_sn_CP <- clrSeq_result_simu2[, c("mu", "sigma", "gamma")]
+
+
+simu2_sn_DP <- matrix(NA, nrow = dim(simu2_sn_CP)[1], ncol = 3)
+for (i in 1:dim(simu2_sn_CP)[1]) {
+  simu2_sn_DP[i,] <- c(cp_to_dp(simu2_sn_CP[i,1],
+                                simu2_sn_CP[i,2],
+                                simu2_sn_CP[i,3]))
 }
+
+colnames(simu2_sn_DP) <- c("xi2", "omega2", "alpha2")
+simu2_sn_DP <- as.data.frame(simu2_sn_DP)
+
+
+ # KS test
+simu2_KS_test_pvalue <- vector()
+for (i in 1:dim(simu2_sn_DP)[1]) {
+  ks <- ks.test(clr_simu.2[i, ],
+                "psn",
+                xi = simu2_sn_DP$xi2[i],
+                omega = simu2_sn_DP$omega2[i],
+                alpha = simu2_sn_DP$alpha2[i])
+  simu2_KS_test_pvalue[i] <- ks$p.value
+}
+sum(simu2_KS_test_pvalue < 0.05)
+# 268/10000 = 0.0268
+# skew-normal model fits 97.32% of the genes well
+
+# Fig. 1 (d)
+hist(sqrt(-log10(simu2_KS_test_pvalue)),
+     freq = F, breaks = 25,
+     xlab =expression(sqrt(-log[10](p))),
+     xlim = c(0,4), ylim = c(0,2.5),
+     main = NULL, border = "grey83")
+abline(v = sqrt(-log10(0.05)), lty = 2, lwd = 1.25, col = "red")
+title(adj=0, "(d)")
+                                                                                                             
 ###END###
-
-
