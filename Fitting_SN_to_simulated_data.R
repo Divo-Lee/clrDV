@@ -1,7 +1,7 @@
 #####################################################
 #clrDV: A differential variability test for
 #RNA-Seq data based on the skew-normal distribution
-#Author: Hongxiang Li
+#Authors: Hongxiang Li and Tsung Fei Khang
 #Email: chelsea.divo@hotmail.com
 #Date: 25 April 2022
 #R Codes for fitting skew-normal model onto real-world data
