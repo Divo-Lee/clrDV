@@ -27,12 +27,10 @@ library(clrDV); library(sn)
 # Request permission from https://adknowledgeportal.synapse.org/ (look for Mayo RNAseq study)
 
 # raw count table
-#ad_counts <- read.csv('MayoRNAseq_RNAseq_TCX_geneCounts.csv', row.names = 1)
-ad_counts <- read.csv('C:/Users/Divo Lee/Desktop/21-22 2ed Sem/Skew Normal Dist/Real Data/MayoRNAseq_RNAseq_TCX_geneCounts.csv', row.names = 1)
+ad_counts <- read.csv('MayoRNAseq_RNAseq_TCX_geneCounts.csv', row.names = 1)
 dim(ad_counts)
 # meta-data
-#ad_meta <- read.csv('MayoRNAseq_individual_metadata_031422.csv')
-ad_meta <- read.csv('C:/Users/Divo Lee/Desktop/21-22 2ed Sem/Skew Normal Dist/Real Data/MayoRNAseq_individual_metadata_031422.csv')
+ad_meta <- read.csv('MayoRNAseq_individual_metadata_031422.csv')
 sum(is.na(ad_meta$diagnosis)) # check NA in disease name column
 # remove samples which give NA in disease name column, in meta-data
 ad_meta <- ad_meta[-which(is.na(ad_meta$diagnosis)), ]
