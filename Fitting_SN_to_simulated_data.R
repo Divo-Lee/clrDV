@@ -3,7 +3,7 @@
 #RNA-Seq data based on the skew-normal distribution
 #Author: Hongxiang Li
 #Email: chelsea.divo@hotmail.com
-#Date: 25 September 2022
+#Date: 25 April 2022
 #R Codes for fitting skew-normal model onto real-world data
 #Part 1: Motivational Figure (Fig. 1)
 #####################################################
@@ -56,8 +56,8 @@ CPM <- cpm(Data2)
 keep <- (rowMeans(CPM[,1:114]) > 0.5 & rowMeans(CPM[,115:228]) > 0.5 & apply(Data2[,1:114], 1, function(x) length(x[x==0])/length(x)) < 0.85 & apply(Data2[,115:228], 1, function(x) length(x[x==0])/length(x)) < 0.85)
 Data2 <- Data2[keep, ]
 
-data_10weeks <- Data2[, 1:114]
-# data_20weeks <- Data2[, 115:228]
+#data_10weeks <- Data2[, 1:114]
+data_20weeks <- Data2[, 115:228]
 
                                                                                                                                                      
 
@@ -270,10 +270,10 @@ for (i in 2:100) {
 
 
 #######################################################
-### Simulation Two, Kelmer data, at 10 weeks of age ###
+### Simulation Two, Kelmer data, at 20 weeks of age ###
 #######################################################
  # simulate dataset
-params.2 <- get_params(data_10weeks)
+params.2 <- get_params(data_20weeks)
 N.genes.2 <- 10000
 N.samples.2 <- 500
 dat2 = create_read_numbers(params.2$mu, params.2$fit, params.2$p0,
