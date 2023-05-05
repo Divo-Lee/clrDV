@@ -1,7 +1,7 @@
 Package: clrDV
 Title: clrDV: A differential variability test for RNA-Seq data based on the skew-normal distribution
-Version: 1.0.0
-Date: 2022-09-15
+Version: 0.1.0
+Date: 2023-05-05
 Authors@R: c(
     person("Hongxiang", "Li", email = "chelsea.divo@hotmail.com", role = c("aut", "cre")),
     person("Tsung Fei", "Khang", email = "tfkhang@um.edu.my", role = "aut"))
