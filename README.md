@@ -1,4 +1,5 @@
 # clrDV
+[![DOI](https://zenodo.org/badge/539562321.svg)](https://zenodo.org/badge/latestdoi/539562321)
 
 ### clrDV: A differential variability test for RNA-Seq data based on the skew-normal distribution
 
