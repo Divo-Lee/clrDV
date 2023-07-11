@@ -24,9 +24,10 @@
 # BiocManager::install("missMethyl", force = T)
 # BiocManager::install("cqn")
 # devtools::install_github("zjdaye/MDSeq")
+# devtools::install_github("aedanr/DiffDist", force=T)
 
 library(polyester); library(compositions); library(edgeR)
-library(MDSeq); library(missMethyl); library(gamlss); library(clrDV)
+library(MDSeq); library(missMethyl); library(gamlss); library(clrDV); library(DiffDist)
 
 ################################
 ### GSE150318_counts.csv.gz 
